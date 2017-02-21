@@ -1,14 +1,10 @@
 
-# Python script to generate the cloudformation template json file
-# This is not strictly needed, but it takes the pain out of writing a
-# cloudformation template by hand.  It also allows for DRY approaches
-# to maintaining cloudformation templates.
+# Python script to generate an AWS CloudFormation template json file
 
 import collections
-from troposphere import Ref, Template, Parameter, Tags
+from troposphere import Ref, Template, Parameter, Tags, Base64, Join
 import troposphere.ec2 as ec2
 from troposphere import iam
-
 
 def gen_template(config):
 
@@ -26,6 +22,8 @@ def gen_template(config):
         'An Ec2-classic stack with Sync Gateway + Accelerator + Couchbase Server with horizontally scalable AutoScaleGroup'
     )
 
+    # Security Group + Launch Keypair
+    # ------------------------------------------------------------------------------------------------------------------
     def createCouchbaseSecurityGroups(t):
 
         # Couchbase security group
@@ -122,6 +120,9 @@ def gen_template(config):
 
     secGrpCouchbase = createCouchbaseSecurityGroups(t)
 
+    # EC2 Instance profile + Mobile Testkit Role to allow pushing to CloudWatch Logs
+    # ------------------------------------------------------------------------------------------------------------------
+
     # Create an IAM Role to give the EC2 instance permissions to
     # push Cloudwatch Logs, which avoids the need to bake in the
     # AWS_KEY + AWS_SECRET_KEY into an ~/.aws/credentials file or
@@ -152,6 +153,7 @@ def gen_template(config):
     t.add_resource(instanceProfile)
 
     # Couchbase Server Instances
+    # ------------------------------------------------------------------------------------------------------------------
     for i in xrange(num_couchbase_servers):
         name = "couchbaseserver{}".format(i)
         instance = ec2.Instance(name)
@@ -161,7 +163,6 @@ def gen_template(config):
         instance.KeyName = Ref(keyname_param)
         instance.Tags = Tags(Name=name, Type="couchbaseserver")
         instance.IamInstanceProfile = Ref(instanceProfile)
-
         instance.BlockDeviceMappings = [
             ec2.BlockDeviceMapping(
                 DeviceName="/dev/sda1",
@@ -174,8 +175,54 @@ def gen_template(config):
         ]
         t.add_resource(instance)
 
+    # Single SG instance
+    # ------------------------------------------------------------------------------------------------------------------
+    name = "syncgateway{}".format(i)
+    instance = ec2.Instance(name)
+    instance.ImageId = "ami-07da0d11"  # Sync Gw 1.4
+    instance.InstanceType = sync_gateway_server_type
+    instance.SecurityGroups = [Ref(secGrpCouchbase)]
+    instance.KeyName = Ref(keyname_param)
+    instance.Tags = Tags(Name=name, Type="syncgateway")
+    instance.IamInstanceProfile = Ref(instanceProfile)
+    instance.BlockDeviceMappings = [
+        ec2.BlockDeviceMapping(
+            DeviceName="/dev/sda1",
+            Ebs=ec2.EBSBlockDevice(
+                DeleteOnTermination=True,
+                VolumeSize=25,
+                VolumeType="gp2"
+            )
+        )
+    ]
+    instance.UserData = sgAndSgAccelUserData()
+
+    t.add_resource(instance)
+
+    # Single SG Accel instance
+    # ------------------------------------------------------------------------------------------------------------------
+    name = "sgaccel{}".format(i)
+    instance = ec2.Instance(name)
+    instance.ImageId = "ami-07da0d11"  # Sync Gw 1.4
+    instance.InstanceType = sync_gateway_server_type
+    instance.SecurityGroups = [Ref(secGrpCouchbase)]
+    instance.KeyName = Ref(keyname_param)
+    instance.Tags = Tags(Name=name, Type="sgaccel")
+    instance.IamInstanceProfile = Ref(instanceProfile)
+    instance.BlockDeviceMappings = [
+        ec2.BlockDeviceMapping(
+            DeviceName="/dev/sda1",
+            Ebs=ec2.EBSBlockDevice(
+                DeleteOnTermination=True,
+                VolumeSize=25,
+                VolumeType="gp2"
+            )
+        )
+    ]
+    t.add_resource(instance)
 
     # Load generator instances
+    # ------------------------------------------------------------------------------------------------------------------
     for i in xrange(num_load_generators):
         name = "loadgenerator{}".format(i)
         instance = ec2.Instance(name)
@@ -190,7 +237,7 @@ def gen_template(config):
                 DeviceName="/dev/sda1",
                 Ebs=ec2.EBSBlockDevice(
                     DeleteOnTermination=True,
-                    VolumeSize=50,
+                    VolumeSize=25,
                     VolumeType="gp2"
                 )
             )
@@ -198,9 +245,16 @@ def gen_template(config):
 
         t.add_resource(instance)
 
-
     return t.to_json()
 
+
+def sgAndSgAccelUserData():
+    return Base64(Join('', [
+        '#!/bin/bash\n',
+        'sudo apt-get -y install wget\n',
+        'wget https://gist.githubusercontent.com/tleyden/d830193b9a237abd8aac4a2687f72625/raw/ee76618696784c54b4d4cb46ac51e0af15c6c1be/user-data.sh\n',
+        'python user-data.sh\n'
+    ]))
 
 def main():
 
