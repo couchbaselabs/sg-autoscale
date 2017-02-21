@@ -196,7 +196,6 @@ def gen_template(config):
         )
     ]
     instance.UserData = sgAndSgAccelUserData()
-
     t.add_resource(instance)
 
     # Single SG Accel instance
@@ -219,6 +218,7 @@ def gen_template(config):
             )
         )
     ]
+    instance.UserData = sgAndSgAccelUserData()
     t.add_resource(instance)
 
     # Load generator instances
@@ -251,9 +251,8 @@ def gen_template(config):
 def sgAndSgAccelUserData():
     return Base64(Join('', [
         '#!/bin/bash\n',
-        'sudo apt-get -y install wget\n',
-        'wget https://gist.githubusercontent.com/tleyden/d830193b9a237abd8aac4a2687f72625/raw/16b065596a0c47680abf0f111bb674f7561b4d7e/user-data.sh\n',
-        'python user-data.sh\n'
+        'wget https://gist.githubusercontent.com/tleyden/28bf3477ae6b25bfc3a0f418378f00b4/raw/fcd820343eb98ef4bd14200ff1e501600c076f05/user-data.sh\n',
+        'sudo python user-data.sh\n'
     ]))
 
 def main():
