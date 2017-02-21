@@ -177,7 +177,7 @@ def gen_template(config):
 
     # Single SG instance
     # ------------------------------------------------------------------------------------------------------------------
-    name = "syncgateway"
+    name = "syncgateway0"
     instance = ec2.Instance(name)
     instance.ImageId = "ami-07da0d11"  # Sync Gw 1.4
     instance.InstanceType = sync_gateway_server_type
@@ -201,9 +201,9 @@ def gen_template(config):
 
     # Single SG Accel instance
     # ------------------------------------------------------------------------------------------------------------------
-    name = "sgaccel"
+    name = "sgaccel0"
     instance = ec2.Instance(name)
-    instance.ImageId = "ami-07da0d11"  # Sync Gw 1.4
+    instance.ImageId = "ami-bdf621ab"  # Sync Gw Accel 1.4
     instance.InstanceType = sync_gateway_server_type
     instance.SecurityGroups = [Ref(secGrpCouchbase)]
     instance.KeyName = Ref(keyname_param)
