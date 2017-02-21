@@ -179,7 +179,7 @@ def gen_template(config):
     # ------------------------------------------------------------------------------------------------------------------
     name = "syncgateway0"
     instance = ec2.Instance(name)
-    instance.ImageId = "ami-07da0d11"  # Sync Gw 1.4
+    instance.ImageId = "ami-bf1fc9a9"  # Sync Gw 1.4
     instance.InstanceType = sync_gateway_server_type
     instance.SecurityGroups = [Ref(secGrpCouchbase)]
     instance.KeyName = Ref(keyname_param)
@@ -203,7 +203,7 @@ def gen_template(config):
     # ------------------------------------------------------------------------------------------------------------------
     name = "sgaccel0"
     instance = ec2.Instance(name)
-    instance.ImageId = "ami-bdf621ab"  # Sync Gw Accel 1.4
+    instance.ImageId = "ami-ab1dcbbd"  # Sync Gw Accel 1.4
     instance.InstanceType = sync_gateway_server_type
     instance.SecurityGroups = [Ref(secGrpCouchbase)]
     instance.KeyName = Ref(keyname_param)
@@ -252,7 +252,7 @@ def sgAndSgAccelUserData():
     return Base64(Join('', [
         '#!/bin/bash\n',
         'sudo apt-get -y install wget\n',
-        'wget https://gist.githubusercontent.com/tleyden/d830193b9a237abd8aac4a2687f72625/raw/ee76618696784c54b4d4cb46ac51e0af15c6c1be/user-data.sh\n',
+        'wget https://gist.githubusercontent.com/tleyden/d830193b9a237abd8aac4a2687f72625/raw/16b065596a0c47680abf0f111bb674f7561b4d7e/user-data.sh\n',
         'python user-data.sh\n'
     ]))
 
