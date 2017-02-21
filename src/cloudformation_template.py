@@ -177,7 +177,7 @@ def gen_template(config):
 
     # Single SG instance
     # ------------------------------------------------------------------------------------------------------------------
-    name = "syncgateway{}".format(i)
+    name = "syncgateway"
     instance = ec2.Instance(name)
     instance.ImageId = "ami-07da0d11"  # Sync Gw 1.4
     instance.InstanceType = sync_gateway_server_type
@@ -201,7 +201,7 @@ def gen_template(config):
 
     # Single SG Accel instance
     # ------------------------------------------------------------------------------------------------------------------
-    name = "sgaccel{}".format(i)
+    name = "sgaccel"
     instance = ec2.Instance(name)
     instance.ImageId = "ami-07da0d11"  # Sync Gw 1.4
     instance.InstanceType = sync_gateway_server_type

@@ -35,5 +35,23 @@ $ source setup.sh
 $ python src/cloudformation_template.py
 ```
 
+## Create Cloudformation Stack
+
+You will need to first:
+
+* Install AWS cli
+* Set AWS credential env variables
+
+Run this command and replace `YourStackName` and `YourKeyName` with the values that make sense for your setup:
+
+```
+$ aws cloudformation create-stack \
+  --stack-name "YourStackName" \
+  --template-body "file://src/cf_template.json" \
+  --region us-east-1 \
+  --parameters ParameterKey=KeyName,ParameterValue=YourKeyName \
+  --capabilities CAPABILITY_IAM
+```
+
 
 
