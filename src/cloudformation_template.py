@@ -179,7 +179,7 @@ def gen_template(config):
     # ------------------------------------------------------------------------------------------------------------------
     name = "syncgateway0"
     instance = ec2.Instance(name)
-    instance.ImageId = "ami-bf1fc9a9"  # Sync Gw 1.4 based on Centos7
+    instance.ImageId = "ami-fc9544ea"  # Sync Gw 1.4 based on Centos7
     instance.InstanceType = sync_gateway_server_type
     instance.SecurityGroups = [Ref(secGrpCouchbase)]
     instance.KeyName = Ref(keyname_param)
@@ -202,7 +202,7 @@ def gen_template(config):
     # ------------------------------------------------------------------------------------------------------------------
     name = "sgaccel0"
     instance = ec2.Instance(name)
-    instance.ImageId = "ami-ab1dcbbd"  # Sync Gw Accel 1.4 based on Centos7
+    instance.ImageId = "ami-e69948f0"  # Sync Gw Accel 1.4 based on Centos7
     instance.InstanceType = sync_gateway_server_type
     instance.SecurityGroups = [Ref(secGrpCouchbase)]
     instance.KeyName = Ref(keyname_param)
