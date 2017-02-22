@@ -53,5 +53,11 @@ $ aws cloudformation create-stack \
   --capabilities CAPABILITY_IAM
 ```
 
+## Manually increase AutoScaleGroup instances
+
+```
+$ aws --region us-east-1 autoscaling set-desired-capacity --auto-scaling-group-name TleydenSgAutoScale9-SGAutoScalingGroup-JQXZ6OQ99X1B --desired-capacity 2
+```
+
 
 
