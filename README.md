@@ -53,11 +53,66 @@ $ aws cloudformation create-stack \
   --capabilities CAPABILITY_IAM
 ```
 
+## Manual setup steps
+
+### Couchbase Server
+
+1. Find the hostname of one of the Couchbase Server instances
+1. Go to Web UI at `${hostname}:8091`
+1. Set up initial node -- make sure it's using all available RAM, the defaults feel broken and suggesting a number that's way too low
+1. Go to other Couchbase Server nodes and join that node
+1. Rebalance
+1. Add data-bucket and index-bucket
+1. Go to Route53 update cb1.sgautoscale.couchbasemobile.com to point CNAME record to any of the Couchbase Servesr
+
+### Elastic Load Balancer DNS 
+
+This is optional, but it creates a much cleaner URL to test against
+
+1. Go to ELB and get the DNS entry
+1. Go to Route53 update sgautoscale.couchbasemobile.com to point CNAME record to the ELB DNS
+
 ## Manually increase AutoScaleGroup instances
 
+Find the name of the auto-scale groups
+
 ```
-$ aws --region us-east-1 autoscaling set-desired-capacity --auto-scaling-group-name TleydenSgAutoScale9-SGAutoScalingGroup-JQXZ6OQ99X1B --desired-capacity 2
+$ aws --region us-east-1 autoscaling describe-auto-scaling-groups | grep -i AutoScalingGroupName | grep -v arn
+            "AutoScalingGroupName": "TleydenSgAutoScale18-SGAccelAutoScalingGroup-ND5SFRFOOLO7",
+            "AutoScalingGroupName": "TleydenSgAutoScale18-SGAutoScalingGroup-W72N3BNON5Q9",
 ```
+
+Increase SG and SG Accel instances
+
+```
+$ aws --region us-east-1 autoscaling set-desired-capacity --auto-scaling-group-name TleydenSgAutoScale18-SGAccelAutoScalingGroup-ND5SFRFOOLO7 --desired-capacity 1
+$ aws --region us-east-1 autoscaling set-desired-capacity --auto-scaling-group-name TleydenSgAutoScale18-SGAutoScalingGroup-W72N3BNON5Q9 --desired-capacity 1
+```
+
+## Verify Elastic Load Balancer
+
+```
+$ curl http://sgautoscale.couchbasemobile.com:4984/
+{"couchdb":"Welcome","vendor":{"name":"Couchbase Sync Gateway","version":1.4},"version":"Couchbase Sync Gateway/1.4(103;f7535d3)"}
+```
+
+## Run load generator
+
+1. Find the hostname of the load generator
+1. ssh in and run sgload or gateload
+
+### sgload
+
+```
+$ cd go/bin
+$ ./sgload gateload --createreaders --createwriters --numreaders 100 --numwriters 100 --numupdaters 0 --writerdelayms 1000 --batchsize 10 --numchannels 10 --numdocs 1000 --loglevel debug --sg-url http://sgautoscale.couchbasemobile.com:4984/db/
+```
+
+
+
+
+
+
 
 
 
