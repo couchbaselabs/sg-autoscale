@@ -164,6 +164,7 @@ def gen_template(config):
         instance.KeyName = Ref(keyname_param)
         instance.Tags = Tags(Name=name, Type="couchbaseserver")
         instance.IamInstanceProfile = Ref(instanceProfile)
+        instance.UserData = cbServerUserData()
         instance.BlockDeviceMappings = [
             ec2.BlockDeviceMapping(
                 DeviceName="/dev/sda1",
@@ -286,6 +287,7 @@ def gen_template(config):
         instance.SecurityGroups = [Ref(secGrpCouchbase)]
         instance.KeyName = Ref(keyname_param)
         instance.IamInstanceProfile = Ref(instanceProfile)
+        instance.UserData = loadGeneratorUserData()
         instance.Tags = Tags(Name=name, Type="loadgenerator")
         instance.BlockDeviceMappings = [
             ec2.BlockDeviceMapping(
@@ -311,8 +313,18 @@ def sgAndSgAccelUserData():
         '#!/bin/bash\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg-launch.sh\n',
         'cat sg-launch.sh\n',
-        'sudo python sg-launch.sh\n'
+        'sudo python sg-launch.sh\n',
+        'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
+
+def cbServerUserData():
+    return Base64(Join('', [
+        '#!/bin/bash\n',
+        'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
+    ]))
+
+def loadGeneratorUserData():
+    return cbServerUserData()
 
 # Main
 # ----------------------------------------------------------------------------------------------------------------------
