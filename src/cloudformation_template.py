@@ -202,7 +202,7 @@ def gen_template(config):
             ),
         ],
         CrossZone=True,
-        SecurityGroups=[Ref(secGrpCouchbase)],
+        SecurityGroups=[secGrpCouchbase],
         LoadBalancerName="SGAutoScaleLoadBalancer",
         Scheme="internet-facing",
     )
