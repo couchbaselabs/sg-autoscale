@@ -192,12 +192,18 @@ def gen_template(config):
             HealthyThreshold="2",
             UnhealthyThreshold="2",
             Interval="5",
-            Timeout="15",
+            Timeout="3",
         ),
         Listeners=[
             elb.Listener(
                 LoadBalancerPort="4984",
                 InstancePort="4984",
+                Protocol="HTTP",
+                InstanceProtocol="HTTP",
+            ),
+            elb.Listener(
+                LoadBalancerPort="4985",
+                InstancePort="4985",
                 Protocol="HTTP",
                 InstanceProtocol="HTTP",
             ),
