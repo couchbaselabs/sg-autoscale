@@ -65,6 +65,8 @@ default_sg_accel_config = """
     }
 }
 """
+
+
 import pwd
 import os
 import time
@@ -83,12 +85,9 @@ def main():
 
     for i in range(30):
 
-        if is_service_running(sg_server_type):
-            # the service is running, we're done
-            print("Service is running.  Finished.")
-            return
-
         restart_service(sg_server_type)
+
+        time.sleep(5)  # Give it a few seconds to bind to port
 
         if is_service_running(sg_server_type):
             # the service is running, we're done
@@ -215,3 +214,11 @@ def restart_service(sg_server_type):
     
 if __name__ == "__main__":
    main()
+
+
+
+
+
+
+
+
