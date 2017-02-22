@@ -288,7 +288,7 @@ def gen_template(config):
     for i in xrange(num_load_generators):
         name = "loadgenerator{}".format(i)
         instance = ec2.Instance(name)
-        instance.ImageId = "ami-6d1c2007"  # centos7
+        instance.ImageId = "ami-c92dfcdf"  # SGload and gateload on CentOS7 (uberjenkins sg-load-generator-ami)
         instance.InstanceType = load_generator_instance_type
         instance.SecurityGroups = [Ref(secGrpCouchbase)]
         instance.KeyName = Ref(keyname_param)
@@ -338,11 +338,11 @@ def main():
 
     Config = collections.namedtuple('Config', 'num_couchbase_servers couchbase_instance_type sync_gateway_server_type num_load_generators load_generator_instance_type')
     config = Config(
-        num_couchbase_servers=3,
-        couchbase_instance_type="m3.medium",
-        sync_gateway_server_type="m3.medium",
+        num_couchbase_servers=6,
+        couchbase_instance_type="c3.2xlarge",
+        sync_gateway_server_type="c3.2xlarge",
         num_load_generators=1,
-        load_generator_instance_type="m3.medium",
+        load_generator_instance_type="c3.2xlarge",
     )
 
     templ_json = gen_template(config)
