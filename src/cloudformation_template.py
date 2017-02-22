@@ -12,12 +12,9 @@ def gen_template(config):
 
     num_couchbase_servers = config.num_couchbase_servers
     couchbase_instance_type = config.couchbase_instance_type
-
     sync_gateway_server_type = config.sync_gateway_server_type
-
     num_load_generators = config.num_load_generators
     load_generator_instance_type = config.load_generator_instance_type
-
 
     t = Template()
     t.add_description(
@@ -283,14 +280,20 @@ def gen_template(config):
 
     return t.to_json()
 
-
+# The "user data" launch script that runs on startup on SG and SG Accel EC2 instances.
+# This uses "cloud-init" which is pre-installed on the EC2 instances, and the logs are
+# available in /var/log/cloud-init-output.log
+# ----------------------------------------------------------------------------------------------------------------------
 def sgAndSgAccelUserData():
     return Base64(Join('', [
         '#!/bin/bash\n',
-        'wget https://gist.githubusercontent.com/tleyden/28bf3477ae6b25bfc3a0f418378f00b4/raw/041c004a7424d720586dd5557c8c05bdb885d37e/user-data.sh\n',
-        'sudo python user-data.sh\n'
+        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg-launch.sh\n',
+        'cat sg-launch.sh\n',
+        'sudo python sg-launch.sh\n'
     ]))
 
+# Main
+# ----------------------------------------------------------------------------------------------------------------------
 def main():
 
     Config = collections.namedtuple('Config', 'num_couchbase_servers couchbase_instance_type sync_gateway_server_type num_load_generators load_generator_instance_type')
