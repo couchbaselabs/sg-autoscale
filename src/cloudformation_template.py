@@ -202,7 +202,8 @@ def gen_template(config):
             ),
         ],
         CrossZone=True,
-        SecurityGroups=[Ref(secGrpCouchbase)],
+        # SecurityGroups=[Ref(secGrpCouchbase)],  TODO: why doesn't this work?
+        SecurityGroups=["sg-485ac631"],  # Hardcode ID of default VPC security group
         LoadBalancerName="SGAutoScaleLoadBalancer",
         Scheme="internet-facing",
     )
