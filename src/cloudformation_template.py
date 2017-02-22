@@ -188,9 +188,9 @@ def gen_template(config):
         AvailabilityZones=GetAZs(""),  # Get all AZ's in current region (I think)
         HealthCheck=elb.HealthCheck(
             Target="HTTP:4984/",
-            HealthyThreshold="5",
+            HealthyThreshold="2",
             UnhealthyThreshold="2",
-            Interval="20",
+            Interval="5",
             Timeout="15",
         ),
         Listeners=[
