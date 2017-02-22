@@ -157,7 +157,7 @@ def gen_template(config):
     for i in xrange(num_couchbase_servers):
         name = "couchbaseserver{}".format(i)
         instance = ec2.Instance(name)
-        instance.ImageId = "ami-6d1c2007"  # centos7
+        instance.ImageId = "ami-1536e003"  # Couchbase Server 4.5 based on Centos7
         instance.InstanceType = couchbase_instance_type
         instance.SecurityGroups = [Ref(secGrpCouchbase)]
         instance.KeyName = Ref(keyname_param)
@@ -179,7 +179,7 @@ def gen_template(config):
     # ------------------------------------------------------------------------------------------------------------------
     name = "syncgateway0"
     instance = ec2.Instance(name)
-    instance.ImageId = "ami-bf1fc9a9"  # Sync Gw 1.4
+    instance.ImageId = "ami-bf1fc9a9"  # Sync Gw 1.4 based on Centos7
     instance.InstanceType = sync_gateway_server_type
     instance.SecurityGroups = [Ref(secGrpCouchbase)]
     instance.KeyName = Ref(keyname_param)
@@ -202,7 +202,7 @@ def gen_template(config):
     # ------------------------------------------------------------------------------------------------------------------
     name = "sgaccel0"
     instance = ec2.Instance(name)
-    instance.ImageId = "ami-ab1dcbbd"  # Sync Gw Accel 1.4
+    instance.ImageId = "ami-ab1dcbbd"  # Sync Gw Accel 1.4 based on Centos7
     instance.InstanceType = sync_gateway_server_type
     instance.SecurityGroups = [Ref(secGrpCouchbase)]
     instance.KeyName = Ref(keyname_param)
@@ -251,7 +251,7 @@ def gen_template(config):
 def sgAndSgAccelUserData():
     return Base64(Join('', [
         '#!/bin/bash\n',
-        'wget https://gist.githubusercontent.com/tleyden/28bf3477ae6b25bfc3a0f418378f00b4/raw/fcd820343eb98ef4bd14200ff1e501600c076f05/user-data.sh\n',
+        'wget https://gist.githubusercontent.com/tleyden/28bf3477ae6b25bfc3a0f418378f00b4/raw/041c004a7424d720586dd5557c8c05bdb885d37e/user-data.sh\n',
         'sudo python user-data.sh\n'
     ]))
 
