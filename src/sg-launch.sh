@@ -25,7 +25,12 @@ default_sync_gateway_config = """
     "databases":{
         "db":{
             "server":"http://cb1.sgautoscale.couchbasemobile.com:8091",
-            "bucket": "data-bucket",
+            "bucket":"data-bucket",
+            "channel_index":{
+                "server":"http://cb1.sgautoscale.couchbasemobile.com:8091",
+                "bucket":"index-bucket",
+                "writer":false
+            },
             "users":{
                 "GUEST":{
                     "disabled":false,
