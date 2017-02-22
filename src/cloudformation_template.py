@@ -174,30 +174,6 @@ def gen_template(config):
         ]
         t.add_resource(instance)
 
-    # Single SG instance
-    # ------------------------------------------------------------------------------------------------------------------
-    # name = "syncgateway0"
-    # instance = ec2.Instance(name)
-    # instance.ImageId = "ami-fc9544ea"  # Sync Gw 1.4 based on Centos7
-    # instance.InstanceType = sync_gateway_server_type
-    # instance.SecurityGroups = [Ref(secGrpCouchbase)]
-    # instance.KeyName = Ref(keyname_param)
-    # instance.Tags = Tags(Name=name, Type="syncgateway")
-    # instance.IamInstanceProfile = Ref(instanceProfile)
-    # instance.BlockDeviceMappings = [
-    #     ec2.BlockDeviceMapping(
-    #         DeviceName="/dev/sda1",
-    #         Ebs=ec2.EBSBlockDevice(
-    #             DeleteOnTermination=True,
-    #             VolumeSize=25,
-    #             VolumeType="gp2"
-    #         )
-    #     )
-    # ]
-    # instance.UserData = sgAndSgAccelUserData()
-    # t.add_resource(instance)
-
-
     # SG AutoScaleGroup
     # ------------------------------------------------------------------------------------------------------------------
     SGLaunchConfiguration = autoscaling.LaunchConfiguration(
@@ -230,29 +206,38 @@ def gen_template(config):
     )
     t.add_resource(SGAutoScalingGroup)
 
-
-    # Single SG Accel instance
+    # SG Accel AutoScaleGroup
     # ------------------------------------------------------------------------------------------------------------------
-    name = "sgaccel0"
-    instance = ec2.Instance(name)
-    instance.ImageId = "ami-e69948f0"  # Sync Gw Accel 1.4 based on Centos7
-    instance.InstanceType = sync_gateway_server_type
-    instance.SecurityGroups = [Ref(secGrpCouchbase)]
-    instance.KeyName = Ref(keyname_param)
-    instance.Tags = Tags(Name=name, Type="sgaccel")
-    instance.IamInstanceProfile = Ref(instanceProfile)
-    instance.BlockDeviceMappings = [
-        ec2.BlockDeviceMapping(
-            DeviceName="/dev/sda1",
-            Ebs=ec2.EBSBlockDevice(
-                DeleteOnTermination=True,
-                VolumeSize=25,
-                VolumeType="gp2"
+    SGAccelLaunchConfiguration = autoscaling.LaunchConfiguration(
+        "SGAccelLaunchConfiguration",
+        ImageId="ami-e69948f0",
+        KeyName=Ref(keyname_param),
+        IamInstanceProfile=Ref(instanceProfile),
+        InstanceType=sync_gateway_server_type,
+        SecurityGroups=[Ref(secGrpCouchbase)],
+        UserData=sgAndSgAccelUserData(),
+        BlockDeviceMappings=[
+            ec2.BlockDeviceMapping(
+                DeviceName="/dev/sda1",
+                Ebs=ec2.EBSBlockDevice(
+                    DeleteOnTermination=True,
+                    VolumeSize=25,
+                    VolumeType="gp2"
+                )
             )
-        )
-    ]
-    instance.UserData = sgAndSgAccelUserData()
-    t.add_resource(instance)
+        ]
+    )
+    t.add_resource(SGAccelLaunchConfiguration)
+
+    SGAccelAutoScalingGroup = autoscaling.AutoScalingGroup(
+        "SGAccelAutoScalingGroup",
+        AvailabilityZones=GetAZs(""),  # Get all AZ's in current region (I think)
+        LaunchConfigurationName=Ref(SGAccelLaunchConfiguration),
+        MaxSize=100,
+        MinSize=0,
+    )
+    t.add_resource(SGAccelAutoScalingGroup)
+
 
     # Load generator instances
     # ------------------------------------------------------------------------------------------------------------------
