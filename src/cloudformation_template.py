@@ -4,8 +4,10 @@
 import collections
 from troposphere import Ref, Template, Parameter, Tags, Base64, Join
 import troposphere.autoscaling as autoscaling
+from troposphere.elasticloadbalancing import LoadBalancer
 from troposphere import GetAZs
 import troposphere.ec2 as ec2
+import troposphere.elasticloadbalancing as elb
 from troposphere import iam
 
 def gen_template(config):
@@ -174,6 +176,38 @@ def gen_template(config):
         ]
         t.add_resource(instance)
 
+
+    # Elastic Load Balancer (ELB)
+    # ------------------------------------------------------------------------------------------------------------------
+    SGAutoScaleLoadBalancer = LoadBalancer(
+        "SGAutoScaleLoadBalancer",
+        ConnectionDrainingPolicy=elb.ConnectionDrainingPolicy(
+            Enabled=True,
+            Timeout=120,
+        ),
+        AvailabilityZones=GetAZs(""),  # Get all AZ's in current region (I think)
+        HealthCheck=elb.HealthCheck(
+            Target="HTTP:4984/",
+            HealthyThreshold="5",
+            UnhealthyThreshold="2",
+            Interval="20",
+            Timeout="15",
+        ),
+        Listeners=[
+            elb.Listener(
+                LoadBalancerPort="4984",
+                InstancePort="4984",
+                Protocol="HTTP",
+                InstanceProtocol="HTTP",
+            ),
+        ],
+        CrossZone=True,
+        SecurityGroups=[Ref(secGrpCouchbase)],
+        LoadBalancerName="SGAutoScaleLoadBalancer",
+        Scheme="internet-facing",
+    )
+    t.add_resource(SGAutoScaleLoadBalancer)
+
     # SG AutoScaleGroup
     # ------------------------------------------------------------------------------------------------------------------
     SGLaunchConfiguration = autoscaling.LaunchConfiguration(
@@ -201,6 +235,7 @@ def gen_template(config):
         "SGAutoScalingGroup",
         AvailabilityZones=GetAZs(""),  # Get all AZ's in current region (I think)
         LaunchConfigurationName=Ref(SGLaunchConfiguration),
+        LoadBalancerNames=[Ref(SGAutoScaleLoadBalancer)],
         MaxSize=100,
         MinSize=0,
     )
@@ -237,6 +272,7 @@ def gen_template(config):
         MinSize=0,
     )
     t.add_resource(SGAccelAutoScalingGroup)
+
 
 
     # Load generator instances
