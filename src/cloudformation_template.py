@@ -131,7 +131,8 @@ def gen_template(config):
     mobileTestKitRole = iam.Role(
         'MobileTestKit',
         ManagedPolicyArns=[
-            'arn:aws:iam::aws:policy/CloudWatchFullAccess'
+            'arn:aws:iam::aws:policy/CloudWatchFullAccess',
+            'arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess',
         ],
         AssumeRolePolicyDocument={
             'Version': '2012-10-17',

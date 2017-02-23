@@ -105,11 +105,38 @@ $ curl http://sgautoscale.couchbasemobile.com:4984/
 
 ```
 $ cd go/bin
-$ ./sgload gateload --createreaders --createwriters --numreaders 100 --numwriters 100 --numupdaters 0 --writerdelayms 1000 --batchsize 10 --numchannels 10 --numdocs 1000 --loglevel debug --sg-url http://sgautoscale.couchbasemobile.com:4984/db/
+$ ./sgload gateload --createreaders --createwriters --numreaders 1000 --numwriters 1000 --numupdaters 1000 --writerdelayms 10000 --batchsize 10 --numchannels 10 --numdocs 1000000 --loglevel debug --sg-url http://sgautoscale.couchbasemobile.com:4984/db/ --expvarprogressenabled --statsdenabled --statsdendpoint localhost:8125
 ```
 
+## Pushing from load generator to grafana
 
 
+### ssh tunnel
+
+```
+$ ssh -o StrictHostKeyChecking=no ec2-user@ec2-54-89-204-209.compute-1.amazonaws.com -R 8086:s61103cnt72.sc.couchbase.com:8086 -N -f
+```
+
+### Telegraf
+
+
+```
+$ sudo yum install -y https://dl.influxdata.com/telegraf/releases/telegraf-1.0.0.x86_64.rpm
+```
+
+Update `/etc/telegraf/telegraf.conf` to uncomment these two lines:
+
+```
+[[inputs.statsd]]
+   service_address = ":8125"
+   allowed_pending_messages = 10000
+```
+
+Restart with
+
+```
+$ systemctl restart telegraf
+```
 
 
 
