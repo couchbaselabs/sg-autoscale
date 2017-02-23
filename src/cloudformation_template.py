@@ -187,6 +187,9 @@ def gen_template(config):
             Enabled=True,
             Timeout=120,
         ),
+        ConnectionSettings=elb.ConnectionSettings(
+            IdleTimeout=3600,  # 1 hour to help avoid 504 GATEWAY_TIMEOUT for continuous changes feeds
+        ),
         AvailabilityZones=GetAZs(""),  # Get all AZ's in current region (I think)
         HealthCheck=elb.HealthCheck(
             Target="HTTP:4984/",
