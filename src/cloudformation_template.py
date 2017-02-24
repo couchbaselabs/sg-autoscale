@@ -159,7 +159,7 @@ def gen_template(config):
     for i in xrange(num_couchbase_servers):
         name = "couchbaseserver{}".format(i)
         instance = ec2.Instance(name)
-        instance.ImageId = "ami-1536e003"  # Couchbase Server 4.5 based on Centos7
+        instance.ImageId = "ami-846ebe92"  # Couchbase Server 4.5 based on Centos7
         instance.InstanceType = couchbase_instance_type
         instance.SecurityGroups = [Ref(secGrpCouchbase)]
         instance.KeyName = Ref(keyname_param)
@@ -292,7 +292,7 @@ def gen_template(config):
     for i in xrange(num_load_generators):
         name = "loadgenerator{}".format(i)
         instance = ec2.Instance(name)
-        instance.ImageId = "ami-c92dfcdf"  # SGload and gateload on CentOS7 (uberjenkins sg-load-generator-ami)
+        instance.ImageId = "ami-3d6ebe2b"  # SGload and gateload on CentOS7 (uberjenkins sg-load-generator-ami)
         instance.InstanceType = load_generator_instance_type
         instance.SecurityGroups = [Ref(secGrpCouchbase)]
         instance.KeyName = Ref(keyname_param)
