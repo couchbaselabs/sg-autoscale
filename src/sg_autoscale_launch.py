@@ -61,7 +61,8 @@ sg_accel_config = """
 import sg_launch
 import os
 import re
-
+import socket
+   
 def install_telegraf(server_type):
    
    """
@@ -110,7 +111,7 @@ def install_telegraf(server_type):
    )
 
    # Replace {{ inventory_hostname }}
-   hostname = os.environ["HOSTNAME"]
+   hostname = socket.gethostname()
    telegraf_config_content = re.sub(
       "{{ inventory_hostname }}",
       hostname,
