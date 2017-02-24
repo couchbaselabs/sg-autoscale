@@ -115,8 +115,8 @@ def install_telegraf(server_type):
       telegraf_config_content,
    )
 
-   # Replace {{ inventory_hostname }}
-   hostname = socket.gethostname()
+   # Replace {{ inventory_hostname }} with something like sgip-172-31-2-81 or lgip-172-31-2-81
+   hostname = "{}{}".format(hostname_prefix, socket.gethostname())
    telegraf_config_content = re.sub(
       "{{ inventory_hostname }}",
       hostname,
