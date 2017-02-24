@@ -165,7 +165,7 @@ def gen_template(config):
         instance.KeyName = Ref(keyname_param)
         instance.Tags = Tags(Name=name, Type="couchbaseserver")
         instance.IamInstanceProfile = Ref(instanceProfile)
-        instance.UserData = cbServerUserData()
+        instance.UserData = userData()
         instance.BlockDeviceMappings = [
             ec2.BlockDeviceMapping(
                 DeviceName="/dev/sda1",
@@ -224,12 +224,12 @@ def gen_template(config):
     # ------------------------------------------------------------------------------------------------------------------
     SGLaunchConfiguration = autoscaling.LaunchConfiguration(
         "SGLaunchConfiguration",
-        ImageId="ami-fc9544ea",
+        ImageId="ami-67934071",
         KeyName=Ref(keyname_param),
         IamInstanceProfile=Ref(instanceProfile),
         InstanceType=sync_gateway_server_type,
         SecurityGroups=[Ref(secGrpCouchbase)],
-        UserData=sgAndSgAccelUserData(),
+        UserData=userData(),
         BlockDeviceMappings=[
             ec2.BlockDeviceMapping(
                 DeviceName="/dev/sda1",
@@ -257,12 +257,12 @@ def gen_template(config):
     # ------------------------------------------------------------------------------------------------------------------
     SGAccelLaunchConfiguration = autoscaling.LaunchConfiguration(
         "SGAccelLaunchConfiguration",
-        ImageId="ami-e69948f0",
+        ImageId="ami-ec984bfa",
         KeyName=Ref(keyname_param),
         IamInstanceProfile=Ref(instanceProfile),
         InstanceType=sync_gateway_server_type,
         SecurityGroups=[Ref(secGrpCouchbase)],
-        UserData=sgAndSgAccelUserData(),
+        UserData=userData(),
         BlockDeviceMappings=[
             ec2.BlockDeviceMapping(
                 DeviceName="/dev/sda1",
@@ -297,7 +297,7 @@ def gen_template(config):
         instance.SecurityGroups = [Ref(secGrpCouchbase)]
         instance.KeyName = Ref(keyname_param)
         instance.IamInstanceProfile = Ref(instanceProfile)
-        instance.UserData = loadGeneratorUserData()
+        instance.UserData = userData()
         instance.Tags = Tags(Name=name, Type="loadgenerator")
         instance.BlockDeviceMappings = [
             ec2.BlockDeviceMapping(
@@ -318,23 +318,15 @@ def gen_template(config):
 # This uses "cloud-init" which is pre-installed on the EC2 instances, and the logs are
 # available in /var/log/cloud-init-output.log
 # ----------------------------------------------------------------------------------------------------------------------
-def sgAndSgAccelUserData():
+def userData():
     return Base64(Join('', [
         '#!/bin/bash\n',
-        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg-launch.sh\n',
-        'cat sg-launch.sh\n',
-        'sudo python sg-launch.sh\n',
+        'wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n',
+        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
+        'cat *.py\n',
+        'python sg_autoscale_launch.py\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
-
-def cbServerUserData():
-    return Base64(Join('', [
-        '#!/bin/bash\n',
-        'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
-    ]))
-
-def loadGeneratorUserData():
-    return cbServerUserData()
 
 # Main
 # ----------------------------------------------------------------------------------------------------------------------
