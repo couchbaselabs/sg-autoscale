@@ -115,11 +115,7 @@ def install_telegraf(server_type):
    )
 
    # Write out the config to destination
-   telegraf_config_dest = os.path.join(
-      "etc",
-      "telegraf",
-      "telegraf.conf",
-   )
+   telegraf_config_dest = "/etc/telegraf/telegraf.conf"
    with open(telegraf_config_dest, 'w') as f:
       f.write(telegraf_config_content)
    print("Wrote updated content to {}.  Content: {}".format(telegraf_config_dest, telegraf_config_content))
