@@ -72,6 +72,9 @@ def install_telegraf(server_type):
    Restart telegraf
    """
 
+   # Install default telegraf
+   os.system("sudo yum install -y https://dl.influxdata.com/telegraf/releases/telegraf-1.0.0.x86_64.rpm")
+
    # Download hacked telegraf binary from mobile-testkit repo
    os.system("wget https://github.com/couchbaselabs/mobile-testkit/raw/master/libraries/provision/ansible/playbooks/files/telegraf -O /usr/bin/telegraf")
 
