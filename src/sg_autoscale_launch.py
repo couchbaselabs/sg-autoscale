@@ -58,8 +58,80 @@ sg_accel_config = """
 }
 """
 
-from sg_launch import main
-    
+import sg_launch
+import os
+import re
+
+def install_telegraf(server_type):
+   
+   """
+   
+   
+   Modify values in config (jinja template) .. but for hostname just use the default machine hostname, possibly prefixed with lg$hostname or sg$hostname
+   Overwrite default telegraf config
+   Restart telegraf
+   """
+
+   # Download hacked telegraf binary from mobile-testkit repo
+   os.system("wget https://github.com/couchbaselabs/mobile-testkit/raw/master/libraries/provision/ansible/playbooks/files/telegraf -O /usr/bin/telegraf")
+
+   # Download appropriate config from mobile-testkit repo
+   telegraf_config = "error"
+   if server_type is sg_launch.SERVER_TYPE_SYNC_GATEWAY:
+      telegraf_config = "telegraf-sync-gateway.conf"
+   elif server_type is sg_launch.SERVER_TYPE_SG_ACCEL:
+      telegraf_config = "telegraf-sg-accel.conf"
+   elif server_type is sg_launch.SERVER_TYPE_LOAD_GEN:
+      telegraf_config = "telegraf-gateload.conf"
+   elif server_type is sg_launch.SERVER_TYPE_COUCHBASE_SERVER:
+       telegraf_config = "telegraf-couchbase-server.conf"
+   else:
+      raise Exeption("Unknown server type: {}".format(server_type))
+   os.system("wget https://raw.githubusercontent.com/couchbaselabs/mobile-testkit/master/libraries/provision/ansible/playbooks/files/{}".format(telegraf_config))
+
+   # Modify values in config -- it's a jinja2 template, but just shitegile it and use regex
+   telegraf_config_content = open(telegraf_config).read()
+
+   # Replace {{ influx_url }}
+   telegraf_config_content = re.sub(
+      "{{ influx_url }}",
+      "http://localhost:8086",
+      telegraf_config_content,
+   )
+
+   # Replace {{ grafana_db }}
+   telegraf_config_content = re.sub(
+      "{{ grafana_db }}",
+      "telegraf",
+      telegraf_config_content,
+   )
+
+   # Replace {{ inventory_hostname }}
+   hostname = os.environ["HOSTNAME"]
+   telegraf_config_content = re.sub(
+      "{{ inventory_hostname }}",
+      hostname,
+      telegraf_config_content,
+   )
+
+   # Write out the config to destination
+   telegraf_config_dest = os.path.join(
+      "etc",
+      "telegraf",
+      "telegraf.conf",
+   )
+   with open(telegraf_config_dest, 'w') as f:
+      f.write(telegraf_config_content)
+   print("Wrote updated content to {}.  Content: {}".format(telegraf_config_dest, telegraf_config_content))
+
+   # Restart telegraf
+   os.system("systemctl restart telegraf")
+
+
 if __name__ == "__main__":
 
-   main(sync_gateway_config, sg_accel_config)
+   sg_launch.main(sync_gateway_config, sg_accel_config)
+
+   server_type = sg_launch.discover_sg_server_type()
+
+   install_telegraf(server_type)
