@@ -224,7 +224,7 @@ def gen_template(config):
     # ------------------------------------------------------------------------------------------------------------------
     SGLaunchConfiguration = autoscaling.LaunchConfiguration(
         "SGLaunchConfiguration",
-        ImageId="ami-67934071",
+        ImageId="ami-73825165",
         KeyName=Ref(keyname_param),
         IamInstanceProfile=Ref(instanceProfile),
         InstanceType=sync_gateway_server_type,
