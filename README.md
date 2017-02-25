@@ -65,6 +65,13 @@ $ aws cloudformation create-stack \
 1. Add data-bucket and index-bucket
 1. Go to Route53 update cb1.sgautoscale.couchbasemobile.com to point CNAME record to any of the Couchbase Servesr
 
+Instead of doing this by hand, it can be done via couchbase-cli
+
+```
+$ ./couchbase-cli init-cluster # TODO: add instructions
+$ ./couchbase-cli server-add -c ec2-54-89-145-30.compute-1.amazonaws.com --server-add ec2-54-237-29-75.compute-1.amazonaws.com -u Administrator -p password --server-add-username=Administrator --server-add-password=password
+```
+
 ### Elastic Load Balancer DNS 
 
 This is optional, but it creates a much cleaner URL to test against
@@ -94,6 +101,16 @@ $ aws --region us-east-1 autoscaling set-desired-capacity --auto-scaling-group-n
 ```
 $ curl http://sgautoscale.couchbasemobile.com:4984/
 {"couchdb":"Welcome","vendor":{"name":"Couchbase Sync Gateway","version":1.4},"version":"Couchbase Sync Gateway/1.4(103;f7535d3)"}
+```
+
+## Instructions to setup ssh tunnels
+
+This is required to push data back to Influx/Grafana host:
+
+```
+$ python libraries/provision/generate_pools_json_from_aws.py --stackname yourstackname
+$ emacs resources/pool.json   # go to AWS web UI and get public dns names of all autoscale instances and manually add
+$ python utilities/setup_ssh_tunnel.py --target-host s61103cnt72.sc.couchbase.com --target-port 8086  --remote-hosts-user ec2-user --remote-host-port 8086 --remote-hosts-file resources/pool.json
 ```
 
 ## Run load generator
