@@ -153,7 +153,7 @@ def init_couchbase_server_cluster():
    #couchbase_cluster = cb_bootstrap.CouchbaseCluster(cluster_token, node_id)
    #couchbase_cluster.SetAdminUser("Administrator")
    #couchbase_cluster.SetAdminPassword("Password")
-   #couchbase_cluster.SetNodeName(socket.gethostname())  # how to get the public ip?
+   #couchbase_cluster.SetCouchbaseServerName(socket.gethostname())  # how to get the public ip?
    #couchbase_cluster.WireUp()  # blocks until it either sets up as initial node or joins other nodes
    #couchbase_cluster.AddBucketIfMissing(
    #   Name="data-bucket",

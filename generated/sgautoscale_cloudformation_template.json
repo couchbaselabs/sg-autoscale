@@ -1,0 +1,652 @@
+{
+    "Description": "An Ec2-classic stack with Sync Gateway + Accelerator + Couchbase Server with horizontally scalable AutoScaleGroup",
+    "Parameters": {
+        "KeyName": {
+            "Description": "Name of an existing EC2 KeyPair to enable SSH access",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "CouchbaseSecurityGroup": {
+            "Properties": {
+                "GroupDescription": "Allow access to Couchbase Server",
+                "SecurityGroupIngress": [
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "22",
+                        "IpProtocol": "tcp",
+                        "ToPort": "22"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "8091",
+                        "IpProtocol": "tcp",
+                        "ToPort": "8091"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "4984",
+                        "IpProtocol": "tcp",
+                        "ToPort": "4984"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "4985",
+                        "IpProtocol": "tcp",
+                        "ToPort": "4985"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "9876",
+                        "IpProtocol": "tcp",
+                        "ToPort": "9876"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "4369",
+                        "IpProtocol": "tcp",
+                        "ToPort": "4369"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "5984",
+                        "IpProtocol": "tcp",
+                        "ToPort": "5984"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "8092",
+                        "IpProtocol": "tcp",
+                        "ToPort": "8092"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "11209",
+                        "IpProtocol": "tcp",
+                        "ToPort": "11209"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "11210",
+                        "IpProtocol": "tcp",
+                        "ToPort": "11210"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "11211",
+                        "IpProtocol": "tcp",
+                        "ToPort": "11211"
+                    },
+                    {
+                        "CidrIp": "0.0.0.0/0",
+                        "FromPort": "21100",
+                        "IpProtocol": "tcp",
+                        "ToPort": "21299"
+                    }
+                ]
+            },
+            "Type": "AWS::EC2::SecurityGroup"
+        },
+        "EC2InstanceProfile": {
+            "Properties": {
+                "Roles": [
+                    {
+                        "Ref": "MobileTestKit"
+                    }
+                ]
+            },
+            "Type": "AWS::IAM::InstanceProfile"
+        },
+        "MobileTestKit": {
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Action": "sts:AssumeRole",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "ec2.amazonaws.com"
+                            }
+                        }
+                    ],
+                    "Version": "2012-10-17"
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/CloudWatchFullAccess",
+                    "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
+                ]
+            },
+            "Type": "AWS::IAM::Role"
+        },
+        "SGAccelAutoScalingGroup": {
+            "Properties": {
+                "AvailabilityZones": {
+                    "Fn::GetAZs": ""
+                },
+                "LaunchConfigurationName": {
+                    "Ref": "SGAccelLaunchConfiguration"
+                },
+                "MaxSize": 100,
+                "MinSize": 0
+            },
+            "Type": "AWS::AutoScaling::AutoScalingGroup"
+        },
+        "SGAccelLaunchConfiguration": {
+            "Properties": {
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": 25,
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ],
+                "IamInstanceProfile": {
+                    "Ref": "EC2InstanceProfile"
+                },
+                "ImageId": "ami-00914316",
+                "InstanceType": "c3.2xlarge",
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "CouchbaseSecurityGroup"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "cat *.py\n",
+                                "python sg_autoscale_launch.py\n",
+                                "ethtool -K eth0 sg off\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::AutoScaling::LaunchConfiguration"
+        },
+        "SGAutoScaleLoadBalancer": {
+            "Properties": {
+                "AvailabilityZones": {
+                    "Fn::GetAZs": ""
+                },
+                "ConnectionDrainingPolicy": {
+                    "Enabled": true,
+                    "Timeout": 120
+                },
+                "ConnectionSettings": {
+                    "IdleTimeout": 3600
+                },
+                "CrossZone": "true",
+                "HealthCheck": {
+                    "HealthyThreshold": "2",
+                    "Interval": "5",
+                    "Target": "HTTP:4984/",
+                    "Timeout": "3",
+                    "UnhealthyThreshold": "2"
+                },
+                "Listeners": [
+                    {
+                        "InstancePort": "4984",
+                        "InstanceProtocol": "HTTP",
+                        "LoadBalancerPort": "4984",
+                        "Protocol": "HTTP"
+                    },
+                    {
+                        "InstancePort": "4985",
+                        "InstanceProtocol": "HTTP",
+                        "LoadBalancerPort": "4985",
+                        "Protocol": "HTTP"
+                    }
+                ],
+                "LoadBalancerName": "SGAutoScaleLoadBalancer",
+                "Scheme": "internet-facing",
+                "SecurityGroups": [
+                    "sg-485ac631"
+                ]
+            },
+            "Type": "AWS::ElasticLoadBalancing::LoadBalancer"
+        },
+        "SGAutoScalingGroup": {
+            "Properties": {
+                "AvailabilityZones": {
+                    "Fn::GetAZs": ""
+                },
+                "LaunchConfigurationName": {
+                    "Ref": "SGLaunchConfiguration"
+                },
+                "LoadBalancerNames": [
+                    {
+                        "Ref": "SGAutoScaleLoadBalancer"
+                    }
+                ],
+                "MaxSize": 100,
+                "MinSize": 0
+            },
+            "Type": "AWS::AutoScaling::AutoScalingGroup"
+        },
+        "SGLaunchConfiguration": {
+            "Properties": {
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": 25,
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ],
+                "IamInstanceProfile": {
+                    "Ref": "EC2InstanceProfile"
+                },
+                "ImageId": "ami-53924045",
+                "InstanceType": "c3.2xlarge",
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "CouchbaseSecurityGroup"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "cat *.py\n",
+                                "python sg_autoscale_launch.py\n",
+                                "ethtool -K eth0 sg off\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::AutoScaling::LaunchConfiguration"
+        },
+        "couchbaseserver0": {
+            "Properties": {
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": 200,
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ],
+                "IamInstanceProfile": {
+                    "Ref": "EC2InstanceProfile"
+                },
+                "ImageId": "ami-846ebe92",
+                "InstanceType": "c3.2xlarge",
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "CouchbaseSecurityGroup"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "couchbaseserver0"
+                    },
+                    {
+                        "Key": "Type",
+                        "Value": "couchbaseserver"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "cat *.py\n",
+                                "python sg_autoscale_launch.py\n",
+                                "ethtool -K eth0 sg off\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "couchbaseserver1": {
+            "Properties": {
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": 200,
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ],
+                "IamInstanceProfile": {
+                    "Ref": "EC2InstanceProfile"
+                },
+                "ImageId": "ami-846ebe92",
+                "InstanceType": "c3.2xlarge",
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "CouchbaseSecurityGroup"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "couchbaseserver1"
+                    },
+                    {
+                        "Key": "Type",
+                        "Value": "couchbaseserver"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "cat *.py\n",
+                                "python sg_autoscale_launch.py\n",
+                                "ethtool -K eth0 sg off\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "couchbaseserver2": {
+            "Properties": {
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": 200,
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ],
+                "IamInstanceProfile": {
+                    "Ref": "EC2InstanceProfile"
+                },
+                "ImageId": "ami-846ebe92",
+                "InstanceType": "c3.2xlarge",
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "CouchbaseSecurityGroup"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "couchbaseserver2"
+                    },
+                    {
+                        "Key": "Type",
+                        "Value": "couchbaseserver"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "cat *.py\n",
+                                "python sg_autoscale_launch.py\n",
+                                "ethtool -K eth0 sg off\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "couchbaseserver3": {
+            "Properties": {
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": 200,
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ],
+                "IamInstanceProfile": {
+                    "Ref": "EC2InstanceProfile"
+                },
+                "ImageId": "ami-846ebe92",
+                "InstanceType": "c3.2xlarge",
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "CouchbaseSecurityGroup"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "couchbaseserver3"
+                    },
+                    {
+                        "Key": "Type",
+                        "Value": "couchbaseserver"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "cat *.py\n",
+                                "python sg_autoscale_launch.py\n",
+                                "ethtool -K eth0 sg off\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "couchbaseserver4": {
+            "Properties": {
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": 200,
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ],
+                "IamInstanceProfile": {
+                    "Ref": "EC2InstanceProfile"
+                },
+                "ImageId": "ami-846ebe92",
+                "InstanceType": "c3.2xlarge",
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "CouchbaseSecurityGroup"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "couchbaseserver4"
+                    },
+                    {
+                        "Key": "Type",
+                        "Value": "couchbaseserver"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "cat *.py\n",
+                                "python sg_autoscale_launch.py\n",
+                                "ethtool -K eth0 sg off\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "couchbaseserver5": {
+            "Properties": {
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": 200,
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ],
+                "IamInstanceProfile": {
+                    "Ref": "EC2InstanceProfile"
+                },
+                "ImageId": "ami-846ebe92",
+                "InstanceType": "c3.2xlarge",
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "CouchbaseSecurityGroup"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "couchbaseserver5"
+                    },
+                    {
+                        "Key": "Type",
+                        "Value": "couchbaseserver"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "cat *.py\n",
+                                "python sg_autoscale_launch.py\n",
+                                "ethtool -K eth0 sg off\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "loadgenerator0": {
+            "Properties": {
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": 25,
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ],
+                "IamInstanceProfile": {
+                    "Ref": "EC2InstanceProfile"
+                },
+                "ImageId": "ami-3d6ebe2b",
+                "InstanceType": "c3.2xlarge",
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "CouchbaseSecurityGroup"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "loadgenerator0"
+                    },
+                    {
+                        "Key": "Type",
+                        "Value": "loadgenerator"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "cat *.py\n",
+                                "python sg_autoscale_launch.py\n",
+                                "ethtool -K eth0 sg off\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::EC2::Instance"
+        }
+    }
+}
