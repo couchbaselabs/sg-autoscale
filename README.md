@@ -29,12 +29,6 @@ $ direnv allow
 $ source setup.sh
 ```
 
-## Generate cloudformation template
-
-```
-$ python src/cloudformation_template.py
-```
-
 ## Create Cloudformation Stack
 
 You will need to first:
@@ -47,7 +41,7 @@ Run this command and replace `YourStackName` and `YourKeyName` with the values t
 ```
 $ aws cloudformation create-stack \
   --stack-name "YourStackName" \
-  --template-body "file://src/cf_template.json" \
+  --template-body "file://generated/sgautoscale_cloudformation_template.json" \
   --region us-east-1 \
   --parameters ParameterKey=KeyName,ParameterValue=YourKeyName \
   --capabilities CAPABILITY_IAM
@@ -154,6 +148,19 @@ Restart with
 ```
 $ systemctl restart telegraf
 ```
+
+
+## Regenerate cloudformation template
+
+If you make changes to `src/cloudformation_template.py`, you will need to regenerate the cloudformation template JSON via:
+
+```
+$ python src/cloudformation_template.py
+```
+
+after this, you should have an updated file in `generated/sgautoscale_cloudformation_template.json`
+
+
 
 
 
