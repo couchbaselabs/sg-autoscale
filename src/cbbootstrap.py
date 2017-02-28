@@ -1,5 +1,11 @@
 
+import urllib2
+import json 
+
 """
+
+Usage example:
+
 couchbase_cluster = cbbootstrap.CouchbaseCluster(cluster_id, node_hostname)
    couchbase_cluster.SetAdminCredentials(admin_user="Administrator", admin_pass="Password")
    couchbase_cluster.CreateOrJoin()
@@ -33,9 +39,30 @@ class CouchbaseCluster:
         Depending on response, either create new cluster or join existing
         """
 
+        params = {
+            'cluster_id': self.cluster_id,
+            'bodynode_ip_addr_or_hostname': self.node_ip_addr_or_hostname,
+        }
+        req = urllib2.Request(url,
+                              headers = {
+                                  "Content-Type": "application/json",
+                              },
+                              data = json.dumps(params),
+        )
+        response = urllib2.urlopen(req)
+        data = json.load(response)   
+        print("Server response: {}".format(data))
 
-        pass
 
 
+def main():
+    cbCluster = CouchbaseCluster(
+        cluster_id="MyCluster1",
+        node_ip_addr_or_hostname="ec2-54-153-46-91.us-west-1.compute.amazonaws.com",
+    )
+    cbCluster.CreateOrJoin()
 
+
+if __name__ == "__main__":
+    main()
 
