@@ -18,6 +18,7 @@ def gen_template(config):
     num_load_generators = config.num_load_generators
     load_generator_instance_type = config.load_generator_instance_type
 
+
     t = Template()
     t.add_description(
         'An Ec2-classic stack with Sync Gateway + Accelerator + Couchbase Server with horizontally scalable AutoScaleGroup'
@@ -159,7 +160,7 @@ def gen_template(config):
     for i in xrange(num_couchbase_servers):
         name = "couchbaseserver{}".format(i)
         instance = ec2.Instance(name)
-        instance.ImageId = "ami-846ebe92"  # Couchbase Server 4.5 based on Centos7
+        instance.ImageId = config.couchbase_ami_id
         instance.InstanceType = couchbase_instance_type
         instance.SecurityGroups = [Ref(secGrpCouchbase)]
         instance.KeyName = Ref(keyname_param)
@@ -223,7 +224,7 @@ def gen_template(config):
     # ------------------------------------------------------------------------------------------------------------------
     SGLaunchConfiguration = autoscaling.LaunchConfiguration(
         "SGLaunchConfiguration",
-        ImageId="ami-53924045",
+        ImageId=config.sync_gateway_ami_id,
         KeyName=Ref(keyname_param),
         IamInstanceProfile=Ref(instanceProfile),
         InstanceType=sync_gateway_server_type,
@@ -256,7 +257,7 @@ def gen_template(config):
     # ------------------------------------------------------------------------------------------------------------------
     SGAccelLaunchConfiguration = autoscaling.LaunchConfiguration(
         "SGAccelLaunchConfiguration",
-        ImageId="ami-00914316",
+        ImageId=config.sync_gateway_ami_id,
         KeyName=Ref(keyname_param),
         IamInstanceProfile=Ref(instanceProfile),
         InstanceType=sync_gateway_server_type,
@@ -291,7 +292,7 @@ def gen_template(config):
     for i in xrange(num_load_generators):
         name = "loadgenerator{}".format(i)
         instance = ec2.Instance(name)
-        instance.ImageId = "ami-3d6ebe2b"  # SGload and gateload on CentOS7 (uberjenkins sg-load-generator-ami)
+        instance.ImageId = config.load_generator_ami_id
         instance.InstanceType = load_generator_instance_type
         instance.SecurityGroups = [Ref(secGrpCouchbase)]
         instance.KeyName = Ref(keyname_param)
@@ -331,13 +332,57 @@ def userData():
 # ----------------------------------------------------------------------------------------------------------------------
 def main():
 
-    Config = collections.namedtuple('Config', 'num_couchbase_servers couchbase_instance_type sync_gateway_server_type num_load_generators load_generator_instance_type')
+    Config = collections.namedtuple(
+        'Config',
+        " ".join([
+            'num_couchbase_servers',
+            'couchbase_instance_type',
+            'sync_gateway_server_type',
+            'num_load_generators',
+            'load_generator_instance_type',
+            'couchbase_ami_id',
+            'sync_gateway_ami_id',
+            'sg_accel_ami_id',
+            'load_generator_ami_id',
+        ]),
+    )
+
+    region = "us-west-1"  # TODO: make cli parameter
+
+    # Generated via http://uberjenkins.sc.couchbase.com/view/Build/job/couchbase-server-ami/
+    couchbase_ami_ids_per_region = {
+        "us-east-1": "ami-846ebe92",
+        "us-west-1": "ami-cc88d6ac"
+    }
+
+    # Generated via http://uberjenkins.sc.couchbase.com/view/Build/job/sync-gateway-ami/
+    sync_gateway_ami_ids_per_region = {
+        "us-east-1": "ami-53924045",
+        "us-west-1": "ami-f68bd596"
+    }
+
+    # Generated via http://uberjenkins.sc.couchbase.com/view/Build/job/sg-accel-ami/
+    sg_accel_ami_ids_per_region = {
+        "us-east-1": "ami-00914316",
+        "us-west-1": "ami-298dd349"
+    }
+
+    # Generated via http://uberjenkins.sc.couchbase.com/view/Build/job/sg-load-generator-ami/
+    load_generator_ami_ids_per_region = {
+        "us-east-1": "ami-3d6ebe2b",
+        "us-west-1": "ami-0d8bd56d"
+    }
+
     config = Config(
         num_couchbase_servers=6,
         couchbase_instance_type="c3.2xlarge",
+        couchbase_ami_id=couchbase_ami_ids_per_region[region],
         sync_gateway_server_type="c3.2xlarge",
+        sync_gateway_ami_id=sync_gateway_ami_ids_per_region[region],
+        sg_accel_ami_id=sg_accel_ami_ids_per_region[region],
         num_load_generators=1,
         load_generator_instance_type="c3.2xlarge",
+        load_generator_ami_id=load_generator_ami_ids_per_region[region],
     )
 
     templ_json = gen_template(config)
