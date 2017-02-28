@@ -141,28 +141,27 @@ def init_couchbase_server_cluster():
 
    # a unique token that defines this cluster.  basically the stackname should work
    # and that can be passed in via the cloudformation template
-   #cluster_token = "Foo"
+   cluster_id = "MyCluster"  # Todo: use stack arn
 
-   #node_id = socket.gethostname()
+   node_hostname = socket.gethostname()
    
-   #import cb_bootstrap
+   import cbbootstrap
 
    # Wrapper around bootstrap.couchbase.io REST API service which has global view of
    # cluster and can track which node is the boostrap
    
-   #couchbase_cluster = cb_bootstrap.CouchbaseCluster(cluster_token, node_id)
-   #couchbase_cluster.SetAdminUser("Administrator")
-   #couchbase_cluster.SetAdminPassword("Password")
-   #couchbase_cluster.SetCouchbaseServerName(socket.gethostname())  # how to get the public ip?
-   #couchbase_cluster.WireUp()  # blocks until it either sets up as initial node or joins other nodes
-   #couchbase_cluster.AddBucketIfMissing(
-   #   Name="data-bucket",
-   #   PercentRam=0.50,
-   #)
-   #couchbase_cluster.AddBucketIfMissing(
-   #   Name="index-bucket",
-   #   PercentRam=0.50,
-   #)
+   couchbase_cluster = cbbootstrap.CouchbaseCluster(cluster_id, node_hostname)
+   couchbase_cluster.SetAdminCredentials(admin_user="Administrator", admin_pass="Password")
+   couchbase_cluster.CreateOrJoin()
+   couchbase_cluster.AddBucketIfMissing(
+      Name="data-bucket",
+      PercentRam=0.50,
+   )
+   couchbase_cluster.AddBucketIfMissing(
+      Name="index-bucket",
+      PercentRam=0.50,
+   )
+   couchbase_cluster.Rebalance()
    
    pass 
 
