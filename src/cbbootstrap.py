@@ -158,8 +158,45 @@ class CouchbaseCluster:
         print(output)
 
     def Join(self):
-        pass
+        self.ServerAdd()
+        self.Rebalance()
+        
+    def ServerAdd(self):
 
+        subprocess_args = [
+            couchbase_cli_abs_path,
+            "server-add",
+            "-c",
+            "{}:{}".format(self.initial_node_ip_addr_or_hostname, couchbase_server_admin_port),
+            "--user={}".format(couchbase_server_admin),
+            "--password={}".format(couchbase_server_password),
+            "--server-add={}".format(self.node_ip_addr_or_hostname),
+            "--server-add-username={}".format(couchbase_server_admin),
+            "--server-add-password={}".format(couchbase_server_password),
+        ]
+        
+        print("Calling server-add with {}".format(" ".join(subprocess_args)))
+                
+        output = subprocess.check_output(subprocess_args)
+        print(output)
+
+
+    def Rebalance(self):
+
+        subprocess_args = [
+            couchbase_cli_abs_path,
+            "rebalance",
+            "-c",
+            "{}:{}".format(self.initial_node_ip_addr_or_hostname, couchbase_server_admin_port),
+            "--user={}".format(couchbase_server_admin),
+            "--password={}".format(couchbase_server_password),
+        ]
+        
+        print("Calling rebalance with {}".format(" ".join(subprocess_args)))
+                
+        output = subprocess.check_output(subprocess_args)
+        print(output)
+        
     
 def main():
     cbCluster = CouchbaseCluster(
