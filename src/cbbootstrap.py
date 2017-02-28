@@ -107,14 +107,14 @@ class CouchbaseCluster:
 
         """
 
-        couchbase_server_home_path = "/opt/couchbase"
+        couchbase_server_bin_path = "/opt/couchbase/bin"
         couchbase_server_admin_port = "8091"
         couchbase_server_admin = "Administrator"
         couchbase_server_password = "password"
         couchbase_server_cluster_ram = "10000"  # TODO: calculate this
 
         couchbase_cli_abs_path = os.path.join(
-            couchbase_server_home_path,
+            couchbase_server_bin_path,
             "couchbase-cli",
         )
 
