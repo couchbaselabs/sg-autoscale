@@ -24,6 +24,16 @@ couchbase_cluster = cbbootstrap.CouchbaseCluster(cluster_id, node_hostname)
 
 CBBOOTSTRAP_API_URL = "https://5e61vqxs5f.execute-api.us-east-1.amazonaws.com/Prod/cluster"
 
+couchbase_server_bin_path = "/opt/couchbase/bin"
+couchbase_server_admin_port = "8091"
+couchbase_server_admin = "Administrator"
+couchbase_server_password = "password"
+couchbase_server_cluster_ram = "13500"  # TODO: calculate this
+couchbase_cli_abs_path = os.path.join(
+    couchbase_server_bin_path,
+    "couchbase-cli",
+)
+        
 class CouchbaseCluster:
 
     def __init__(self, cluster_id, node_ip_addr_or_hostname):
@@ -68,6 +78,10 @@ class CouchbaseCluster:
         self.is_initial_node = data["is_initial_node"]
 
     def Create(self):
+        self.ClusterInit()
+        self.NodeInit()
+        
+    def ClusterInit(self):
         """
 
     couchbase_server_home_path: /opt/couchbase
@@ -107,16 +121,6 @@ class CouchbaseCluster:
 
         """
 
-        couchbase_server_bin_path = "/opt/couchbase/bin"
-        couchbase_server_admin_port = "8091"
-        couchbase_server_admin = "Administrator"
-        couchbase_server_password = "password"
-        couchbase_server_cluster_ram = "13500"  # TODO: calculate this
-
-        couchbase_cli_abs_path = os.path.join(
-            couchbase_server_bin_path,
-            "couchbase-cli",
-        )
 
         subprocess_args = [
             couchbase_cli_abs_path,
@@ -134,9 +138,25 @@ class CouchbaseCluster:
                 
         output = subprocess.check_output(subprocess_args)
         print(output)
-        
-        pass
+
     
+    def NodeInit(self):
+
+        subprocess_args = [
+            couchbase_cli_abs_path,
+            "node-init",
+            "-c",
+            "{}:{}".format(self.node_ip_addr_or_hostname, couchbase_server_admin_port),
+            "--user={}".format(couchbase_server_admin),
+            "--password={}".format(couchbase_server_password),
+            "--node-init-hostname={}".format(self.node_ip_addr_or_hostname),
+        ]
+        
+        print("Calling node-init with {}".format(" ".join(subprocess_args)))
+                
+        output = subprocess.check_output(subprocess_args)
+        print(output)
+
     def Join(self):
         pass
 
