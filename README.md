@@ -64,6 +64,7 @@ Instead of doing this by hand, it can be done via couchbase-cli
 ```
 $ ./couchbase-cli init-cluster # TODO: add instructions
 $ ./couchbase-cli server-add -c ec2-54-89-145-30.compute-1.amazonaws.com --server-add ec2-54-237-29-75.compute-1.amazonaws.com -u Administrator -p password --server-add-username=Administrator --server-add-password=password
+$ ./couchbase-cli rebalance # TODO: add instructions
 ```
 
 ### Elastic Load Balancer DNS 
@@ -102,6 +103,8 @@ $ curl http://sgautoscale.couchbasemobile.com:4984/
 This is required to push data back to Influx/Grafana host:
 
 ```
+$ cd ~/Development/mobile-testkit
+$ source setup.sh
 $ python libraries/provision/generate_pools_json_from_aws.py --stackname yourstackname
 $ emacs resources/pool.json   # go to AWS web UI and get public dns names of all autoscale instances and manually add
 $ python utilities/setup_ssh_tunnel.py --target-host s61103cnt72.sc.couchbase.com --target-port 8086  --remote-hosts-user ec2-user --remote-host-port 8086 --remote-hosts-file resources/pool.json

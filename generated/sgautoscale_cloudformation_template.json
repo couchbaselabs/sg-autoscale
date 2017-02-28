@@ -211,7 +211,12 @@
                 "LoadBalancerName": "SGAutoScaleLoadBalancer",
                 "Scheme": "internet-facing",
                 "SecurityGroups": [
-                    "sg-485ac631"
+                    {
+                        "Fn::GetAtt": [
+                            "CouchbaseSecurityGroup",
+                            "GroupId"
+                        ]
+                    }
                 ]
             },
             "Type": "AWS::ElasticLoadBalancing::LoadBalancer"

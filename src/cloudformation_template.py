@@ -2,7 +2,7 @@
 # Python script to generate an AWS CloudFormation template json file
 
 import collections
-from troposphere import Ref, Template, Parameter, Tags, Base64, Join
+from troposphere import Ref, Template, Parameter, Tags, Base64, Join, GetAtt
 import troposphere.autoscaling as autoscaling
 from troposphere.elasticloadbalancing import LoadBalancer
 from troposphere import GetAZs
@@ -213,8 +213,7 @@ def gen_template(config):
             ),
         ],
         CrossZone=True,
-        # SecurityGroups=[Ref(secGrpCouchbase)],  TODO: why doesn't this work?
-        SecurityGroups=["sg-485ac631"],  # Hardcode ID of default VPC security group
+        SecurityGroups=[GetAtt("CouchbaseSecurityGroup", "GroupId")],
         LoadBalancerName="SGAutoScaleLoadBalancer",
         Scheme="internet-facing",
     )
