@@ -197,20 +197,32 @@ class CouchbaseCluster:
         output = subprocess.check_output(subprocess_args)
         print(output)
         
-    
-def main():
+
+def fakeCreate():
+
     cbCluster = CouchbaseCluster(
         cluster_id="MyCluster1",
         node_ip_addr_or_hostname="ec2-54-153-46-91.us-west-1.compute.amazonaws.com",
     )
-    
-    # cbCluster.CreateOrJoin()
 
-    # Fake it ..
     cbCluster.initial_node_ip_addr_or_hostname = cbCluster.node_ip_addr_or_hostname
     cbCluster.is_initial_node = True
     cbCluster.Create() 
 
+def fakeJoin():
+    
+    cbCluster = CouchbaseCluster(
+        cluster_id="MyCluster1",
+        node_ip_addr_or_hostname="ec2-54-215-201-127.us-west-1.compute.amazonaws.com",
+    )
+
+    cbCluster.initial_node_ip_addr_or_hostname = "ec2-54-153-46-91.us-west-1.compute.amazonaws.com"
+    cbCluster.is_initial_node = False
+    cbCluster.Join() 
+        
+def main():
+    # fakeCreate()    
+    fakeJoin()
 
 if __name__ == "__main__":
     main()
