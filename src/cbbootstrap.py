@@ -64,7 +64,7 @@ class CouchbaseCluster:
 
         params = {
             'cluster_id': self.cluster_id,
-            'bodynode_ip_addr_or_hostname': self.node_ip_addr_or_hostname,
+            'node_ip_addr_or_hostname': self.node_ip_addr_or_hostname,
         }
         req = urllib2.Request(CBBOOTSTRAP_API_URL,
                               headers = {
