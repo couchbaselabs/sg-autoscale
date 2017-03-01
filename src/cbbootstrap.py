@@ -57,9 +57,9 @@ class CouchbaseCluster:
 
         self.LoadFromBootstrapAPI()
         if self.is_initial_node:
-            self.CreateRetry()
+            self.Create()
         else:
-            self.JoinRetry()
+            self.Join()
 
 
     def LoadFromBootstrapAPI(self):
@@ -83,49 +83,16 @@ class CouchbaseCluster:
 
     def Create(self):
         self.ClusterInit()
-        self.WaitUntilListeningOnPort()
+
+        # This is to prevent node-init failures if we try to call
+        # node-init "too soon".  Since node-init hasn't been called, the
+        # server-list command will return:
+        #   ns_1@127.0.0.1 172.31.21.40:8091 healthy active
+        self.WaitUntilNodeHealthy("127.0.0.1")  
+
         self.NodeInit()
         
     def ClusterInit(self):
-        """
-
-    couchbase_server_home_path: /opt/couchbase
-    couchbase_server_admin_port: 8091
-    couchbase_server_admin: Administrator
-    couchbase_server_password: password
-
- - name: COUCHBASE SERVER | Configure cluster settings (4.0.X and 4.1.X)
-      shell: "{{ couchbase_server_home_path }}/bin/couchbase-cli cluster-init -c {{ couchbase_server_node }}:{{ couchbase_server_admin_port }} --user={{ couchbase_server_admin }} --password={{ couchbase_server_password }} --cluster-port={{couchbase_server_admin_port}} --cluster-ramsize={{ couchbase_server_cluster_ram }}  --services=data,index,query  --cluster-index-ramsize={{ couchbase_server_index_ram }}"
-      when:  "'4.0' in couchbase_server_package_name or '4.1' in couchbase_server_package_name"
-
-    - name: COUCHBASE SERVER | Configure cluster settings (4.5.X and 4.6.X)
-      shell: "{{ couchbase_server_home_path }}/bin/couchbase-cli cluster-init -c {{ couchbase_server_node }}:{{ couchbase_server_admin_port }} --user={{ couchbase_server_admin }} --password={{ couchbase_server_password }} --cluster-port={{couchbase_server_admin_port}} --cluster-ramsize={{ couchbase_server_cluster_ram }}  --services=data,index,query  --cluster-index-ramsize={{ couchbase_server_index_ram }}  --index-storage-setting=default"
-      when:  "'4.5' in couchbase_server_package_name or '4.6' in couchbase_server_package_name"
-
-    - name: COUCHBASE SERVER | Configure cluster settings (4.7.X and up)
-      shell: "{{ couchbase_server_home_path }}/bin/couchbase-cli cluster-init -c {{ couchbase_server_node }}:{{ couchbase_server_admin_port }} --cluster-username={{ couchbase_server_admin }} --cluster-password={{ couchbase_server_password }} --cluster-port={{couchbase_server_admin_port}} --cluster-ramsize={{ couchbase_server_cluster_ram }}  --services=data,index,query  --cluster-index-ramsize={{ couchbase_server_index_ram }}  --index-storage-setting=default"
-      when:  "not '4.0' in couchbase_server_package_name and not '4.1' in couchbase_server_package_name and not '4.5' in couchbase_server_package_name and not '4.6' in couchbase_server_package_name"
-
-    - name: COUCHBASE SERVER | Initialize primary node
-      shell: "{{ couchbase_server_home_path }}/bin/couchbase-cli node-init -c {{ couchbase_server_node }}:{{ couchbase_server_admin_port }} --user={{ couchbase_server_admin }} --password={{ couchbase_server_password }} --node-init-hostname={{ couchbase_server_node }}"
-      when: "{{ cb_major_version['stdout'] }} != 2"
-
-    - name: COUCHBASE SERVER | Wait for node to be listening on port 8091
-      wait_for: port=8091 delay=5 timeout=30
-
-    - name: COUCHBASE SERVER | Join additional cluster nodes
-      shell: "{{ couchbase_server_home_path }}/bin/couchbase-cli server-add -c {{ couchbase_server_primary_node }}:{{ couchbase_server_admin_port }} --user={{ couchbase_server_admin }} --password={{ couchbase_server_password }} --server-add={{ couchbase_server_node }}:{{ couchbase_server_admin_port }} --server-add-username={{ couchbase_server_admin }} --server-add-password={{ couchbase_server_password }}"
-      when: not (couchbase_server_node == couchbase_server_primary_node )
-
-    - name: COUCHBASE SERVER | Rebalance cluster
-      shell: "{{ couchbase_server_home_path }}/bin/couchbase-cli rebalance -c {{ couchbase_server_primary_node }}:{{ couchbase_server_admin_port }} --user={{ couchbase_server_admin }} --password={{ couchbase_server_password }}"
-      ignore_errors: yes
-
-    - name: COUCHBASE SERVER | Enable auto failover
-      # shell: "{{ couchbase_server_home_path }}/bin/couchbase-cli setting-autofailover -c {{ couchbase_server_primary_node }}:{{ couchbase_server_admin_port }} --user={{ couchbase_server_admin }} --password={{ couchbase_server_password }} --enable-auto-failover=1 --auto-failover-timeout=30"
-
-        """
-
 
         subprocess_args = [
             couchbase_cli_abs_path,
@@ -139,15 +106,24 @@ class CouchbaseCluster:
             "--services=data",
         ]
         
-        print("Calling cluster-init with {}".format(" ".join(subprocess_args)))
-
         exec_subprocess(subprocess_args)
 
 
-    def WaitUntilListeningOnPort(self):
-        # TODO: replace this with a polling loop
-        print("Waiting until listening on port ...")
-        time.sleep(15)
+    def WaitUntilNodeHealthy(self, node_ip):
+        self.Retry(self.NodeHealthyOrRaise(node_ip))
+
+    def NodeHealthyOrRaise(self, node_ip):
+        subprocess_args = [
+            couchbase_cli_abs_path,
+            "server-list",
+            "-c",
+            "{}:{}".format(self.node_ip_addr_or_hostname, couchbase_server_admin_port),
+            "--user={}".format(couchbase_server_admin),
+            "--password={}".format(couchbase_server_password),
+        ]
+        output = exec_subprocess(subprocess_args)
+        if node_ip not in output:
+            raise Exception("Did not find {} in {}".format(node_ip, output))
         
     def NodeInit(self):
 
@@ -161,8 +137,6 @@ class CouchbaseCluster:
             "--node-init-hostname={}".format(self.node_ip_addr_or_hostname),
         ]
         
-        print("Calling node-init with {}".format(" ".join(subprocess_args)))
-
         exec_subprocess(subprocess_args)
 
 
@@ -206,8 +180,6 @@ class CouchbaseCluster:
             "--server-add-password={}".format(couchbase_server_password),
         ]
         
-        print("Calling server-add with {}".format(" ".join(subprocess_args)))
-
         exec_subprocess(subprocess_args)
 
     def WaitForNoRebalanceRunning(self):
@@ -255,8 +227,6 @@ class CouchbaseCluster:
             "--password={}".format(couchbase_server_password),
         ]
         
-        print("Calling rebalance with {}".format(" ".join(subprocess_args)))
-
         exec_subprocess(subprocess_args)
 
     def AddBucket(self, bucket_name, bucket_percent_ram):
@@ -284,7 +254,6 @@ class CouchbaseCluster:
             "--wait"
         ]
         
-        print("Calling bucket-create with {}".format(" ".join(subprocess_args)))
         exec_subprocess(subprocess_args)
         
 
@@ -316,7 +285,7 @@ def fakeCreate():
 
     cbCluster.initial_node_ip_addr_or_hostname = cbCluster.node_ip_addr_or_hostname
     cbCluster.is_initial_node = True
-    cbCluster.CreateRetry()
+    cbCluster.Create()
     cbCluster.AddBucket("data-bucket", 0.50)
     cbCluster.AddBucket("index-bucket", 0.50)    
 
@@ -330,7 +299,7 @@ def fakeJoin():
 
     cbCluster.initial_node_ip_addr_or_hostname = "ec2-54-153-46-91.us-west-1.compute.amazonaws.com"
     cbCluster.is_initial_node = False
-    cbCluster.JoinRetry() 
+    cbCluster.Join() 
         
 def main():
     # fakeCreate()    
