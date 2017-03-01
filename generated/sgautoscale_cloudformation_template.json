@@ -325,8 +325,34 @@
                                 "#!/bin/bash\n",
                                 "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py\n",
+                                "echo ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
+                                "echo ",
+                                {
+                                    "Fn::GetAtt": [
+                                        "couchbaseserver0",
+                                        "PublicDnsName"
+                                    ]
+                                },
+                                "\n",
+                                "python cbbootstrap.py ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                " ",
+                                {
+                                    "Fn::GetAtt": [
+                                        "couchbaseserver0",
+                                        "PublicDnsName"
+                                    ]
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -378,8 +404,34 @@
                                 "#!/bin/bash\n",
                                 "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py\n",
+                                "echo ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
+                                "echo ",
+                                {
+                                    "Fn::GetAtt": [
+                                        "couchbaseserver1",
+                                        "PublicDnsName"
+                                    ]
+                                },
+                                "\n",
+                                "python cbbootstrap.py ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                " ",
+                                {
+                                    "Fn::GetAtt": [
+                                        "couchbaseserver1",
+                                        "PublicDnsName"
+                                    ]
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -431,8 +483,34 @@
                                 "#!/bin/bash\n",
                                 "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py\n",
+                                "echo ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
+                                "echo ",
+                                {
+                                    "Fn::GetAtt": [
+                                        "couchbaseserver2",
+                                        "PublicDnsName"
+                                    ]
+                                },
+                                "\n",
+                                "python cbbootstrap.py ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                " ",
+                                {
+                                    "Fn::GetAtt": [
+                                        "couchbaseserver2",
+                                        "PublicDnsName"
+                                    ]
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -484,8 +562,34 @@
                                 "#!/bin/bash\n",
                                 "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py\n",
+                                "echo ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
+                                "echo ",
+                                {
+                                    "Fn::GetAtt": [
+                                        "couchbaseserver3",
+                                        "PublicDnsName"
+                                    ]
+                                },
+                                "\n",
+                                "python cbbootstrap.py ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                " ",
+                                {
+                                    "Fn::GetAtt": [
+                                        "couchbaseserver3",
+                                        "PublicDnsName"
+                                    ]
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -537,8 +641,34 @@
                                 "#!/bin/bash\n",
                                 "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py\n",
+                                "echo ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
+                                "echo ",
+                                {
+                                    "Fn::GetAtt": [
+                                        "couchbaseserver4",
+                                        "PublicDnsName"
+                                    ]
+                                },
+                                "\n",
+                                "python cbbootstrap.py ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                " ",
+                                {
+                                    "Fn::GetAtt": [
+                                        "couchbaseserver4",
+                                        "PublicDnsName"
+                                    ]
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -590,8 +720,34 @@
                                 "#!/bin/bash\n",
                                 "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py\n",
+                                "echo ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
+                                "echo ",
+                                {
+                                    "Fn::GetAtt": [
+                                        "couchbaseserver5",
+                                        "PublicDnsName"
+                                    ]
+                                },
+                                "\n",
+                                "python cbbootstrap.py ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                " ",
+                                {
+                                    "Fn::GetAtt": [
+                                        "couchbaseserver5",
+                                        "PublicDnsName"
+                                    ]
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]

@@ -166,7 +166,7 @@ def gen_template(config):
         instance.KeyName = Ref(keyname_param)
         instance.Tags = Tags(Name=name, Type="couchbaseserver")
         instance.IamInstanceProfile = Ref(instanceProfile)
-        instance.UserData = userData()
+        instance.UserData = userDataCouchbaseServer(instance)
         instance.BlockDeviceMappings = [
             ec2.BlockDeviceMapping(
                 DeviceName="/dev/sda1",
@@ -325,6 +325,20 @@ def userData():
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
         'cat *.py\n',
         'python sg_autoscale_launch.py\n',
+        'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
+    ]))
+
+def userDataCouchbaseServer(instance):
+    return Base64(Join('', [
+        '#!/bin/bash\n',
+        'wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n',
+        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
+        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n',
+        'cat *.py\n',
+        'python sg_autoscale_launch.py\n',
+        'echo ', Ref("AWS::StackName"), '\n',
+        'echo ', GetAtt(instance, "PublicDnsName"), '\n',
+        'python cbbootstrap.py ', Ref("AWS::StackName"), ' ', GetAtt(instance, "PublicDnsName"), '\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
 
