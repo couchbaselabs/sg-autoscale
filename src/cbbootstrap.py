@@ -234,7 +234,7 @@ class CouchbaseCluster:
         
         print("Calling bucket-create with {}".format(" ".join(subprocess_args)))
         try:
-            output = subprocess.check_output(subprocess_args, stderr=STDOUT)
+            output = subprocess.check_output(subprocess_args, stderr=subprocess.STDOUT)
             print(output)
         except subprocess.CalledProcessError as e:
             print("Error creating bucket.  Return code: {}.  Output: {}".format(e.returncode, e.output))
