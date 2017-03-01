@@ -12,11 +12,11 @@ Usage example:
 couchbase_cluster = cbbootstrap.CouchbaseCluster(cluster_id, node_hostname)
    couchbase_cluster.SetAdminCredentials(admin_user="Administrator", admin_pass="Password")
    couchbase_cluster.CreateOrJoin()
-   couchbase_cluster.AddBucketIfMissing(
+   couchbase_cluster.AddBucket(
       Name="data-bucket",
       PercentRam=0.50,
    )
-   couchbase_cluster.AddBucketIfMissing(
+   couchbase_cluster.AddBucket(
       Name="index-bucket",
       PercentRam=0.50,
    )
@@ -29,11 +29,13 @@ couchbase_server_bin_path = "/opt/couchbase/bin"
 couchbase_server_admin_port = "8091"
 couchbase_server_admin = "Administrator"
 couchbase_server_password = "password"
-couchbase_server_cluster_ram = "13500"  # TODO: calculate this
+couchbase_server_cluster_ram = 13500  # TODO: calculate this
 couchbase_cli_abs_path = os.path.join(
     couchbase_server_bin_path,
     "couchbase-cli",
 )
+couchbase_server_bucket_type = "couchbase"
+couchbase_server_bucket_replica = 1
         
 class CouchbaseCluster:
 
@@ -54,10 +56,11 @@ class CouchbaseCluster:
         """
 
         self.LoadFromBootstrapAPI()
-        if self.is_initial_node():
+        if self.is_initial_node:
             self.Create()
         else:
             self.Join()
+
 
     def LoadFromBootstrapAPI(self):
 
@@ -119,7 +122,7 @@ class CouchbaseCluster:
       ignore_errors: yes
 
     - name: COUCHBASE SERVER | Enable auto failover
-      shell: "{{ couchbase_server_home_path }}/bin/couchbase-cli setting-autofailover -c {{ couchbase_server_primary_node }}:{{ couchbase_server_admin_port }} --user={{ couchbase_server_admin }} --password={{ couchbase_server_password }} --enable-auto-failover=1 --auto-failover-timeout=30"
+      # shell: "{{ couchbase_server_home_path }}/bin/couchbase-cli setting-autofailover -c {{ couchbase_server_primary_node }}:{{ couchbase_server_admin_port }} --user={{ couchbase_server_admin }} --password={{ couchbase_server_password }} --enable-auto-failover=1 --auto-failover-timeout=30"
 
         """
 
@@ -203,6 +206,36 @@ class CouchbaseCluster:
                 
         output = subprocess.check_output(subprocess_args)
         print(output)
+
+    def AddBucket(self, bucket_name, bucket_percent_ram):
+
+        if not self.is_initial_node:
+            print("Skipping adding bucket since this is not the initial node")
+            return 
+        
+        if bucket_percent_ram < 0.0 or bucket_percent_ram > 1.0:
+            raise Exception("invalid bucket_percent_ram: {}".format(bucket_percent_ram))
+        
+        bucket_ramsize = couchbase_server_cluster_ram * bucket_percent_ram 
+
+        subprocess_args = [
+            couchbase_cli_abs_path,
+            "bucket-create",
+            "-c",
+            "{}:{}".format(self.initial_node_ip_addr_or_hostname, couchbase_server_admin_port),
+            "--user={}".format(couchbase_server_admin),
+            "--password={}".format(couchbase_server_password),
+            "--bucket-type=".format(couchbase_server_bucket_type),
+            "--bucket={}".format(bucket_name),
+            "--bucket-ramsize={}".format(bucket_ramsize),
+            "--bucket-replica={}".format(couchbase_server_bucket_replica),
+            "--wait"
+        ]
+        
+        print("Calling bucket-create with {}".format(" ".join(subprocess_args)))
+                
+        output = subprocess.check_output(subprocess_args)
+        print(output)
         
 
 def fakeCreate():
@@ -214,8 +247,11 @@ def fakeCreate():
 
     cbCluster.initial_node_ip_addr_or_hostname = cbCluster.node_ip_addr_or_hostname
     cbCluster.is_initial_node = True
-    cbCluster.Create() 
+    cbCluster.Create()
+    cbCluster.AddBucket("data-bucket", 0.50)
+    cbCluster.AddBucket("index-bucket", 0.50)    
 
+    
 def fakeJoin():
     
     cbCluster = CouchbaseCluster(
