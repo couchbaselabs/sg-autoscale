@@ -3,6 +3,7 @@ import urllib2
 import json 
 import subprocess
 import os
+import time
 
 """
 
@@ -79,6 +80,7 @@ class CouchbaseCluster:
 
     def Create(self):
         self.ClusterInit()
+        self.WaitUntilListeningOnPort()
         self.NodeInit()
         
     def ClusterInit(self):
@@ -139,7 +141,12 @@ class CouchbaseCluster:
         output = subprocess.check_output(subprocess_args)
         print(output)
 
-    
+    def WaitUntilListeningOnPort(self):
+        # TODO: replace this with a polling loop
+        print("Waiting until listening on port ...")
+        time.sleep(15)
+        
+        
     def NodeInit(self):
 
         subprocess_args = [
