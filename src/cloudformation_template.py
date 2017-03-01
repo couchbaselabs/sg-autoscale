@@ -371,12 +371,12 @@ def main():
         ]),
     )
 
-    region = "us-west-1"  # TODO: make cli parameter
+    region = "us-east-1"  # TODO: make cli parameter
 
     # Generated via http://uberjenkins.sc.couchbase.com/view/Build/job/couchbase-server-ami/
     couchbase_ami_ids_per_region = {
-        "us-east-1": "ami-846ebe92",
-        "us-west-1": "ami-cc88d6ac"
+        "us-east-1": "ami-d8f029ce",
+        "us-west-1": "ami-f6b2ec96"
     }
 
     # Generated via http://uberjenkins.sc.couchbase.com/view/Build/job/sync-gateway-ami/

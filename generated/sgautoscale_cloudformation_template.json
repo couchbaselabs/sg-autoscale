@@ -146,7 +146,7 @@
                 "IamInstanceProfile": {
                     "Ref": "EC2InstanceProfile"
                 },
-                "ImageId": "ami-f68bd596",
+                "ImageId": "ami-53924045",
                 "InstanceType": "c3.2xlarge",
                 "KeyName": {
                     "Ref": "KeyName"
@@ -254,7 +254,7 @@
                 "IamInstanceProfile": {
                     "Ref": "EC2InstanceProfile"
                 },
-                "ImageId": "ami-f68bd596",
+                "ImageId": "ami-53924045",
                 "InstanceType": "c3.2xlarge",
                 "KeyName": {
                     "Ref": "KeyName"
@@ -297,7 +297,7 @@
                 "IamInstanceProfile": {
                     "Ref": "EC2InstanceProfile"
                 },
-                "ImageId": "ami-cc88d6ac",
+                "ImageId": "ami-d8f029ce",
                 "InstanceType": "c3.2xlarge",
                 "KeyName": {
                     "Ref": "KeyName"
@@ -364,7 +364,7 @@
                 "IamInstanceProfile": {
                     "Ref": "EC2InstanceProfile"
                 },
-                "ImageId": "ami-cc88d6ac",
+                "ImageId": "ami-d8f029ce",
                 "InstanceType": "c3.2xlarge",
                 "KeyName": {
                     "Ref": "KeyName"
@@ -431,7 +431,7 @@
                 "IamInstanceProfile": {
                     "Ref": "EC2InstanceProfile"
                 },
-                "ImageId": "ami-cc88d6ac",
+                "ImageId": "ami-d8f029ce",
                 "InstanceType": "c3.2xlarge",
                 "KeyName": {
                     "Ref": "KeyName"
@@ -498,7 +498,7 @@
                 "IamInstanceProfile": {
                     "Ref": "EC2InstanceProfile"
                 },
-                "ImageId": "ami-cc88d6ac",
+                "ImageId": "ami-d8f029ce",
                 "InstanceType": "c3.2xlarge",
                 "KeyName": {
                     "Ref": "KeyName"
@@ -565,7 +565,7 @@
                 "IamInstanceProfile": {
                     "Ref": "EC2InstanceProfile"
                 },
-                "ImageId": "ami-cc88d6ac",
+                "ImageId": "ami-d8f029ce",
                 "InstanceType": "c3.2xlarge",
                 "KeyName": {
                     "Ref": "KeyName"
@@ -632,7 +632,7 @@
                 "IamInstanceProfile": {
                     "Ref": "EC2InstanceProfile"
                 },
-                "ImageId": "ami-cc88d6ac",
+                "ImageId": "ami-d8f029ce",
                 "InstanceType": "c3.2xlarge",
                 "KeyName": {
                     "Ref": "KeyName"
@@ -699,7 +699,7 @@
                 "IamInstanceProfile": {
                     "Ref": "EC2InstanceProfile"
                 },
-                "ImageId": "ami-0d8bd56d",
+                "ImageId": "ami-3d6ebe2b",
                 "InstanceType": "c3.2xlarge",
                 "KeyName": {
                     "Ref": "KeyName"
