@@ -57,9 +57,9 @@ class CouchbaseCluster:
 
         self.LoadFromBootstrapAPI()
         if self.is_initial_node:
-            self.Create()
+            self.CreateRetry()
         else:
-            self.Join()
+            self.JoinRetry()
 
 
     def LoadFromBootstrapAPI(self):
