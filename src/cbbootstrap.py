@@ -120,7 +120,7 @@ class CouchbaseCluster:
             couchbase_cli_abs_path,
             "server-list",
             "-c",
-            "{}:{}".format(self.node_ip_addr_or_hostname, couchbase_server_admin_port),
+            "{}:{}".format(self.initial_node_ip_addr_or_hostname, couchbase_server_admin_port),
             "--user={}".format(couchbase_server_admin),
             "--password={}".format(couchbase_server_password),
         ]
