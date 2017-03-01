@@ -87,7 +87,7 @@ This is required to push data back to Influx/Grafana host:
 $ cd ~/Development/mobile-testkit
 $ source setup.sh
 $ python libraries/provision/generate_pools_json_from_aws.py --stackname yourstackname
-$ emacs resources/pool.json   # go to AWS web UI and get public dns names of all autoscale instances and manually add
+$ emacs resources/pool.json   # go to AWS web UI and get public dns names of all autoscale instances and manually add, but will be fixed after [mobile-testkit/issues/995](https://github.com/couchbaselabs/mobile-testkit/issues/995)
 $ python utilities/setup_ssh_tunnel.py --target-host s61103cnt72.sc.couchbase.com --target-port 8086  --remote-hosts-user ec2-user --remote-host-port 8086 --remote-hosts-file resources/pool.json
 ```
 
@@ -141,6 +141,12 @@ $ gateload -workload gateload.json
 $ cd go/bin
 $ ./sgload gateload --createreaders --createwriters --numreaders 1000 --numwriters 1000 --numupdaters 1000 --writerdelayms 10000 --batchsize 10 --numchannels 10 --numdocs 1000000 --loglevel debug --sg-url http://sgautoscale.couchbasemobile.com:4984/db/ --expvarprogressenabled --statsdenabled --statsdendpoint localhost:8125
 ```
+
+## View Grafana metrics
+
+1. Go to grafana.couchbasemobile.com:3000
+1. Choose the `telegraf` database from the pull down
+1. Go to the time range you are interested in
 
 ## Regenerate cloudformation template (development)
 
