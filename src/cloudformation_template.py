@@ -329,8 +329,18 @@ def userData():
     ]))
 
 def userDataCouchbaseServer(instance):
+
+    # TODO
+    """
+    shell: echo 'for i in /sys/kernel/mm/*transparent_hugepage/enabled; do echo never > $i; done' >> /etc/rc.local
+    shell: echo 'for i in /sys/kernel/mm/*transparent_hugepage/defrag; do echo never > $i; done' >> /etc/rc.local
+    shell: for i in /sys/kernel/mm/*transparent_hugepage/enabled; do echo never > $i; done
+    """
+
     return Base64(Join('', [
         '#!/bin/bash\n',
+        'systemctl status couchbase-server\n',
+        'sleep 60\n',  # workaround for https://issues.couchbase.com/browse/MB-23081
         'wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n',
