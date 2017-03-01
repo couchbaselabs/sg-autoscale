@@ -127,7 +127,14 @@
                     "Ref": "SGAccelLaunchConfiguration"
                 },
                 "MaxSize": 100,
-                "MinSize": 0
+                "MinSize": 0,
+                "Tags": [
+                    {
+                        "Key": "Type",
+                        "PropagateAtLaunch": true,
+                        "Value": "sgaccel"
+                    }
+                ]
             },
             "Type": "AWS::AutoScaling::AutoScalingGroup"
         },
@@ -235,7 +242,14 @@
                     }
                 ],
                 "MaxSize": 100,
-                "MinSize": 0
+                "MinSize": 0,
+                "Tags": [
+                    {
+                        "Key": "Type",
+                        "PropagateAtLaunch": true,
+                        "Value": "syncgateway"
+                    }
+                ]
             },
             "Type": "AWS::AutoScaling::AutoScalingGroup"
         },

@@ -248,6 +248,9 @@ def gen_template(config):
         AvailabilityZones=GetAZs(""),  # Get all AZ's in current region (I think)
         LaunchConfigurationName=Ref(SGLaunchConfiguration),
         LoadBalancerNames=[Ref(SGAutoScaleLoadBalancer)],
+        Tags=[
+            autoscaling.Tag(key="Type", value="syncgateway", propogate=True),
+        ],
         MaxSize=100,
         MinSize=0,
     )
@@ -280,6 +283,9 @@ def gen_template(config):
         "SGAccelAutoScalingGroup",
         AvailabilityZones=GetAZs(""),  # Get all AZ's in current region (I think)
         LaunchConfigurationName=Ref(SGAccelLaunchConfiguration),
+        Tags=[
+            autoscaling.Tag(key="Type", value="sgaccel", propogate=True),
+        ],
         MaxSize=100,
         MinSize=0,
     )
