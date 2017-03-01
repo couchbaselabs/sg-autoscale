@@ -66,6 +66,8 @@ import socket
 def install_telegraf(server_type):
    
    """
+
+   This is needed to push metrics to influx/grafana instance that is in the Couchbase VPN
    
    
    Modify values in config (jinja template) .. but for hostname just use the default machine hostname, possibly prefixed with lg$hostname or sg$hostname
