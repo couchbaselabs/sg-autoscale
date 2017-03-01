@@ -191,7 +191,7 @@ class CouchbaseCluster:
         for i in range(max_retries):
             
             if not self.IsRebalanceRunning():
-                print("No rebance running.  Finished waiting")
+                print("No rebalance running.  Finished waiting")
                 return 
 
             print("Rebalance running, waiting 10 seconds")
@@ -237,7 +237,10 @@ class CouchbaseCluster:
 
         if not self.is_initial_node:
             print("Skipping adding bucket since this is not the initial node")
-            return 
+            return
+
+        # Tries to avoid errors: "Cannot create buckets during rebalance"
+        self.WaitForNoRebalanceRunning()
         
         if bucket_percent_ram < 0.0 or bucket_percent_ram > 1.0:
             raise Exception("invalid bucket_percent_ram: {}".format(bucket_percent_ram))
