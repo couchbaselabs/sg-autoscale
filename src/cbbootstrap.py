@@ -88,7 +88,10 @@ class CouchbaseCluster:
         # node-init "too soon".  Since node-init hasn't been called, the
         # server-list command will return:
         #   ns_1@127.0.0.1 172.31.21.40:8091 healthy active
-        self.WaitUntilNodeHealthy("127.0.0.1")  
+        self.WaitUntilNodeHealthy("127.0.0.1")
+
+        # Workaround attempt for https://issues.couchbase.com/browse/MB-23079
+        time.sleep(2)
 
         self.NodeInit()
         
