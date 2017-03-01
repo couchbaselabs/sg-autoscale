@@ -140,9 +140,9 @@ class CouchbaseCluster:
         ]
         
         print("Calling cluster-init with {}".format(" ".join(subprocess_args)))
-                
-        output = subprocess.check_output(subprocess_args)
-        print(output)
+
+        exec_subprocess(subprocess_args)
+
 
     def WaitUntilListeningOnPort(self):
         # TODO: replace this with a polling loop
@@ -163,9 +163,9 @@ class CouchbaseCluster:
         ]
         
         print("Calling node-init with {}".format(" ".join(subprocess_args)))
-                
-        output = subprocess.check_output(subprocess_args)
-        print(output)
+
+        exec_subprocess(subprocess_args)
+
 
     def Join(self):
         self.ServerAdd()
@@ -186,9 +186,8 @@ class CouchbaseCluster:
         ]
         
         print("Calling server-add with {}".format(" ".join(subprocess_args)))
-                
-        output = subprocess.check_output(subprocess_args)
-        print(output)
+
+        exec_subprocess(subprocess_args)
 
 
     def Rebalance(self):
@@ -203,9 +202,8 @@ class CouchbaseCluster:
         ]
         
         print("Calling rebalance with {}".format(" ".join(subprocess_args)))
-                
-        output = subprocess.check_output(subprocess_args)
-        print(output)
+
+        exec_subprocess(subprocess_args)
 
     def AddBucket(self, bucket_name, bucket_percent_ram):
 
@@ -233,14 +231,25 @@ class CouchbaseCluster:
         ]
         
         print("Calling bucket-create with {}".format(" ".join(subprocess_args)))
-        try:
-            output = subprocess.check_output(subprocess_args, stderr=subprocess.STDOUT)
-            print(output)
-        except subprocess.CalledProcessError as e:
-            print("Error creating bucket.  Return code: {}.  Output: {}".format(e.returncode, e.output))
-            raise e
+        exec_subprocess(subprocess_args)
         
 
+def exec_subprocess(subprocess_args):
+
+    try:
+        output = subprocess.check_output(subprocess_args, stderr=subprocess.STDOUT)
+        print(output)
+    except subprocess.CalledProcessError as e:
+        print(
+            "Error calling subprocess with {}.  Return code: {}.  Output: {}".format(
+                subprocess_args,
+                e.returncode,
+                e.output
+            )
+        )
+        raise e
+
+        
 def fakeCreate():
 
     cbCluster = CouchbaseCluster(
