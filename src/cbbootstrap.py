@@ -179,6 +179,10 @@ class CouchbaseCluster:
             time.sleep(10)
 
         raise Exception("Gave up trying to run {}".format(method))
+
+
+    def CreateRetry(self):
+        self.Retry(self.Create)
         
     def JoinRetry(self):
         self.Retry(self.Join)
@@ -312,7 +316,7 @@ def fakeCreate():
 
     cbCluster.initial_node_ip_addr_or_hostname = cbCluster.node_ip_addr_or_hostname
     cbCluster.is_initial_node = True
-    cbCluster.Create()
+    cbCluster.CreateRetry()
     cbCluster.AddBucket("data-bucket", 0.50)
     cbCluster.AddBucket("index-bucket", 0.50)    
 
