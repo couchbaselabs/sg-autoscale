@@ -225,7 +225,7 @@ class CouchbaseCluster:
             "{}:{}".format(self.initial_node_ip_addr_or_hostname, couchbase_server_admin_port),
             "--user={}".format(couchbase_server_admin),
             "--password={}".format(couchbase_server_password),
-            "--bucket-type=".format(couchbase_server_bucket_type),
+            "--bucket-type={}".format(couchbase_server_bucket_type),
             "--bucket={}".format(bucket_name),
             "--bucket-ramsize={}".format(bucket_ramsize),
             "--bucket-replica={}".format(couchbase_server_bucket_replica),
