@@ -263,7 +263,7 @@ class CouchbaseCluster:
 
 def exec_subprocess(subprocess_args):
 
-    print("Calling Couchbase CLI with: {}".format(subprocess_args))
+    print("Calling Couchbase CLI with {}".format(" ".join(subprocess_args)))
     
     try:
         output = subprocess.check_output(subprocess_args, stderr=subprocess.STDOUT)
