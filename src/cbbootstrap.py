@@ -290,7 +290,7 @@ def fakeCreate():
 
     cbCluster = CouchbaseCluster(
         cluster_id="MyCluster1",
-        node_ip_addr_or_hostname="ec2-54-153-46-91.us-west-1.compute.amazonaws.com",
+        node_ip_addr_or_hostname=os.environ["node_ip_addr_or_hostname"],                
     )
     cbCluster.SetAdminCredentials(admin_user="Administrator", admin_pass="password")
 
@@ -305,23 +305,26 @@ def fakeJoin():
     
     cbCluster = CouchbaseCluster(
         cluster_id="MyCluster1",
-        node_ip_addr_or_hostname="ec2-54-215-201-127.us-west-1.compute.amazonaws.com",
+        node_ip_addr_or_hostname=os.environ["node_ip_addr_or_hostname"],        
     )
     cbCluster.SetAdminCredentials(admin_user="Administrator", admin_pass="password")
 
-    cbCluster.initial_node_ip_addr_or_hostname = "ec2-54-153-46-91.us-west-1.compute.amazonaws.com"
+    cbCluster.initial_node_ip_addr_or_hostname = os.environ["initial_node_ip_addr_or_hostname"]        
     cbCluster.is_initial_node = False
     cbCluster.Join() 
 
 def fakeCreateOrJoin():
     cbCluster = CouchbaseCluster(
         cluster_id="MyCluster1",
-        node_ip_addr_or_hostname="ec2-54-215-201-127.us-west-1.compute.amazonaws.com",
+        node_ip_addr_or_hostname=os.environ["node_ip_addr_or_hostname"],
     )
     cbCluster.SetAdminCredentials(admin_user="Administrator", admin_pass="password")
     
     cbCluster.CreateOrJoin()
-    
+    cbCluster.AddBucket("data-bucket", 0.50)
+    cbCluster.AddBucket("index-bucket", 0.50)    
+
+
 def main():
     # fakeCreate()    
     # fakeJoin()
