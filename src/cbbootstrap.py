@@ -149,7 +149,6 @@ class CouchbaseCluster:
         print("Waiting until listening on port ...")
         time.sleep(15)
         
-        
     def NodeInit(self):
 
         subprocess_args = [
@@ -167,8 +166,26 @@ class CouchbaseCluster:
         exec_subprocess(subprocess_args)
 
 
+    def Retry(self, method):
+        max_retries = 10
+        for i in range(max_retries):
+
+            try:
+                self.method()
+                return 
+            except Exception as e:
+                print("Got exception running {}.  Will retry".format(e))
+                
+            time.sleep(10)
+
+        raise Exception("Gave up trying to run {}".format(method))
+        
+    def JoinRetry(self):
+        self.Retry(self.Join)
+        
     def Join(self):
         self.ServerAdd()
+        self.WaitForNoRebalanceRunning()
         self.Rebalance()
         
     def ServerAdd(self):
@@ -189,7 +206,40 @@ class CouchbaseCluster:
 
         exec_subprocess(subprocess_args)
 
+    def WaitForNoRebalanceRunning(self):
+        max_retries = 10
+        for i in range(max_retries):
+            
+            if not self.IsRebalanceRunning():
+                print("No rebance running.  Finished waiting")
+                return 
 
+            print("Rebalance running, waiting 10 seconds")
+            time.sleep(10)
+
+    def IsRebalanceRunning(self):
+        
+        subprocess_args = [
+            couchbase_cli_abs_path,
+            "rebalance-status",
+            "-c",
+            "{}:{}".format(self.initial_node_ip_addr_or_hostname, couchbase_server_admin_port),
+            "--user={}".format(couchbase_server_admin),
+            "--password={}".format(couchbase_server_password),
+        ]
+        
+        output = exec_subprocess(subprocess_args)
+
+        if "notRunning" in output:
+            return False
+        elif "running" in output:
+            return True
+
+        print("Warning: unexpected output for rebalance-status: {}".format(output))
+
+        return False  
+        
+        
     def Rebalance(self):
 
         subprocess_args = [
@@ -236,9 +286,12 @@ class CouchbaseCluster:
 
 def exec_subprocess(subprocess_args):
 
+    print("Calling Couchbase CLI with: {}".format(subprocess_args))
+    
     try:
         output = subprocess.check_output(subprocess_args, stderr=subprocess.STDOUT)
         print(output)
+        return output 
     except subprocess.CalledProcessError as e:
         print(
             "Error calling subprocess with {}.  Return code: {}.  Output: {}".format(
@@ -273,7 +326,7 @@ def fakeJoin():
 
     cbCluster.initial_node_ip_addr_or_hostname = "ec2-54-153-46-91.us-west-1.compute.amazonaws.com"
     cbCluster.is_initial_node = False
-    cbCluster.Join() 
+    cbCluster.JoinRetry() 
         
 def main():
     # fakeCreate()    
