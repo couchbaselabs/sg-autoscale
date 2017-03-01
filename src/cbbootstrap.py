@@ -192,7 +192,7 @@ class CouchbaseCluster:
         exec_subprocess(subprocess_args)
 
     def WaitForNoRebalanceRunning(self):
-        max_retries = 10
+        max_retries = 200
         for i in range(max_retries):
             
             if not self.IsRebalanceRunning():
