@@ -171,7 +171,7 @@ class CouchbaseCluster:
         for i in range(max_retries):
 
             try:
-                self.method()
+                method()
                 return 
             except Exception as e:
                 print("Got exception running {}.  Will retry".format(e))
