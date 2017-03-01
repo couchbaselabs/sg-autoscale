@@ -95,7 +95,7 @@ def install_telegraf(server_type):
        telegraf_config = "telegraf-couchbase-server.conf"
        hostname_prefix = "cbs"             
    else:
-      raise Exeption("Unknown server type: {}".format(server_type))
+      raise Exception("Unknown server type: {}".format(server_type))
    os.system("wget https://raw.githubusercontent.com/couchbaselabs/mobile-testkit/master/libraries/provision/ansible/playbooks/files/{}".format(telegraf_config))
 
    # Modify values in config -- it's a jinja2 template, but just shitegile it and use regex
@@ -134,36 +134,6 @@ def install_telegraf(server_type):
    # Restart telegraf
    os.system("systemctl restart telegraf")
 
-
-def init_couchbase_server_cluster():
-
-   # Imagining the following python module .. 
-
-   # a unique token that defines this cluster.  basically the stackname should work
-   # and that can be passed in via the cloudformation template
-   cluster_id = "MyCluster"  # Todo: use stack arn
-
-   node_hostname = socket.gethostname()
-   
-   import cbbootstrap
-
-   # Wrapper around bootstrap.couchbase.io REST API service which has global view of
-   # cluster and can track which node is the boostrap
-   
-   couchbase_cluster = cbbootstrap.CouchbaseCluster(cluster_id, node_hostname)
-   couchbase_cluster.SetAdminCredentials(admin_user="Administrator", admin_pass="Password")
-   couchbase_cluster.CreateOrJoin()
-   couchbase_cluster.AddBucketIfMissing(
-      Name="data-bucket",
-      PercentRam=0.50,
-   )
-   couchbase_cluster.AddBucketIfMissing(
-      Name="index-bucket",
-      PercentRam=0.50,
-   )
-   couchbase_cluster.Rebalance()
-   
-   pass 
 
 if __name__ == "__main__":
 
