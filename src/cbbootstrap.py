@@ -110,7 +110,10 @@ class CouchbaseCluster:
 
 
     def WaitUntilNodeHealthy(self, node_ip):
-        self.Retry(self.NodeHealthyOrRaise(node_ip))
+        def f():
+            self.NodeHealthyOrRaise(node_ip)
+            
+        self.Retry(f)
 
     def NodeHealthyOrRaise(self, node_ip):
         subprocess_args = [
