@@ -74,6 +74,9 @@ class CouchbaseCluster:
         self.is_initial_node = data["is_initial_node"]
 
     def Create(self):
+
+        self.WaitUntilLocalCouchbaseServerRunning()
+        
         self.ClusterInit()
 
         # This is to prevent node-init failures if we try to call
@@ -104,6 +107,12 @@ class CouchbaseCluster:
         exec_subprocess(subprocess_args)
 
 
+    def WaitUntilLocalCouchbaseServerRunning(self):
+        self.Retry(self.LocalCouchbaseServerRunningOrRaise)
+
+    def LocalCouchbaseServerRunningOrRaise(self):
+        urllib2.urlopen('http://{}:8091'.format(self.node_ip_addr_or_hostname))
+        
     def WaitUntilNodeHealthy(self, node_ip):
         def f():
             self.NodeHealthyOrRaise(node_ip)
@@ -162,6 +171,9 @@ class CouchbaseCluster:
         self.Retry(self.Join)
         
     def Join(self):
+        
+        self.WaitUntilLocalCouchbaseServerRunning()
+        
         self.WaitUntilNodeHealthy(self.initial_node_ip_addr_or_hostname)  
         self.ServerAdd()
         self.WaitForNoRebalanceRunning()
