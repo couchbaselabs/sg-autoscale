@@ -127,6 +127,8 @@ class CouchbaseCluster:
         output = exec_subprocess(subprocess_args)
         if node_ip not in output:
             raise Exception("Did not find {} in {}".format(node_ip, output))
+        if "unhealthy" in output:
+            raise Exception("Some nodes appear to be unhealthy: {}".format(output))
         
     def NodeInit(self):
 
