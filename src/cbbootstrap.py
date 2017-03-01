@@ -165,6 +165,7 @@ class CouchbaseCluster:
         self.Retry(self.Join)
         
     def Join(self):
+        self.WaitUntilNodeHealthy(self.initial_node_ip_addr_or_hostname)  
         self.ServerAdd()
         self.WaitForNoRebalanceRunning()
         self.Rebalance()
