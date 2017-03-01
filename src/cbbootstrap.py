@@ -29,7 +29,7 @@ couchbase_server_bin_path = "/opt/couchbase/bin"
 couchbase_server_admin_port = "8091"
 couchbase_server_admin = "Administrator"
 couchbase_server_password = "password"
-couchbase_server_cluster_ram = 13500  # TODO: calculate this
+couchbase_server_cluster_ram = int(13500)  # TODO: calculate this
 couchbase_cli_abs_path = os.path.join(
     couchbase_server_bin_path,
     "couchbase-cli",
@@ -225,7 +225,7 @@ class CouchbaseCluster:
             "--password={}".format(couchbase_server_password),
             "--bucket-type={}".format(couchbase_server_bucket_type),
             "--bucket={}".format(bucket_name),
-            "--bucket-ramsize={}".format(bucket_ramsize),
+            "--bucket-ramsize={}".format(int(bucket_ramsize)),
             "--bucket-replica={}".format(couchbase_server_bucket_replica),
             "--wait"
         ]
