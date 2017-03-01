@@ -260,7 +260,7 @@ def gen_template(config):
     # ------------------------------------------------------------------------------------------------------------------
     SGAccelLaunchConfiguration = autoscaling.LaunchConfiguration(
         "SGAccelLaunchConfiguration",
-        ImageId=config.sync_gateway_ami_id,
+        ImageId=config.sg_accel_ami_id,
         KeyName=Ref(keyname_param),
         IamInstanceProfile=Ref(instanceProfile),
         InstanceType=sync_gateway_server_type,
