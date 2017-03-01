@@ -27,8 +27,6 @@ CBBOOTSTRAP_API_URL = "https://5e61vqxs5f.execute-api.us-east-1.amazonaws.com/Pr
 
 couchbase_server_bin_path = "/opt/couchbase/bin"
 couchbase_server_admin_port = "8091"
-couchbase_server_admin = "Administrator"
-couchbase_server_password = "password"
 couchbase_server_cluster_ram = int(13500)  # TODO: calculate this
 couchbase_cli_abs_path = os.path.join(
     couchbase_server_bin_path,
@@ -102,8 +100,8 @@ class CouchbaseCluster:
             "cluster-init",
             "-c",
             "{}:{}".format(self.node_ip_addr_or_hostname, couchbase_server_admin_port),
-            "--user={}".format(couchbase_server_admin),
-            "--password={}".format(couchbase_server_password),
+            "--user={}".format(self.admin_user),
+            "--password={}".format(self.admin_pass),
             "--cluster-port={}".format(couchbase_server_admin_port),
             "--cluster-ramsize={}".format(couchbase_server_cluster_ram),
             "--services=data",
@@ -124,8 +122,8 @@ class CouchbaseCluster:
             "server-list",
             "-c",
             "{}:{}".format(self.initial_node_ip_addr_or_hostname, couchbase_server_admin_port),
-            "--user={}".format(couchbase_server_admin),
-            "--password={}".format(couchbase_server_password),
+            "--user={}".format(self.admin_user),
+            "--password={}".format(self.admin_pass),
         ]
         output = exec_subprocess(subprocess_args)
         if node_ip not in output:
@@ -140,8 +138,8 @@ class CouchbaseCluster:
             "node-init",
             "-c",
             "{}:{}".format(self.node_ip_addr_or_hostname, couchbase_server_admin_port),
-            "--user={}".format(couchbase_server_admin),
-            "--password={}".format(couchbase_server_password),
+            "--user={}".format(self.admin_user),
+            "--password={}".format(self.admin_pass),
             "--node-init-hostname={}".format(self.node_ip_addr_or_hostname),
         ]
         
@@ -182,11 +180,11 @@ class CouchbaseCluster:
             "server-add",
             "-c",
             "{}:{}".format(self.initial_node_ip_addr_or_hostname, couchbase_server_admin_port),
-            "--user={}".format(couchbase_server_admin),
-            "--password={}".format(couchbase_server_password),
+            "--user={}".format(self.admin_user),
+            "--password={}".format(self.admin_pass),
             "--server-add={}".format(self.node_ip_addr_or_hostname),
-            "--server-add-username={}".format(couchbase_server_admin),
-            "--server-add-password={}".format(couchbase_server_password),
+            "--server-add-username={}".format(self.admin_user),
+            "--server-add-password={}".format(self.admin_pass),
         ]
         
         exec_subprocess(subprocess_args)
@@ -209,8 +207,8 @@ class CouchbaseCluster:
             "rebalance-status",
             "-c",
             "{}:{}".format(self.initial_node_ip_addr_or_hostname, couchbase_server_admin_port),
-            "--user={}".format(couchbase_server_admin),
-            "--password={}".format(couchbase_server_password),
+            "--user={}".format(self.admin_user),
+            "--password={}".format(self.admin_pass),
         ]
         
         output = exec_subprocess(subprocess_args)
@@ -232,8 +230,8 @@ class CouchbaseCluster:
             "rebalance",
             "-c",
             "{}:{}".format(self.initial_node_ip_addr_or_hostname, couchbase_server_admin_port),
-            "--user={}".format(couchbase_server_admin),
-            "--password={}".format(couchbase_server_password),
+            "--user={}".format(self.admin_user),
+            "--password={}".format(self.admin_pass),
         ]
         
         exec_subprocess(subprocess_args)
@@ -257,8 +255,8 @@ class CouchbaseCluster:
             "bucket-create",
             "-c",
             "{}:{}".format(self.initial_node_ip_addr_or_hostname, couchbase_server_admin_port),
-            "--user={}".format(couchbase_server_admin),
-            "--password={}".format(couchbase_server_password),
+            "--user={}".format(self.admin_user),
+            "--password={}".format(self.admin_pass),
             "--bucket-type={}".format(couchbase_server_bucket_type),
             "--bucket={}".format(bucket_name),
             "--bucket-ramsize={}".format(int(bucket_ramsize)),
@@ -294,6 +292,7 @@ def fakeCreate():
         cluster_id="MyCluster1",
         node_ip_addr_or_hostname="ec2-54-153-46-91.us-west-1.compute.amazonaws.com",
     )
+    cbCluster.SetAdminCredentials(admin_user="Administrator", admin_pass="password")
 
     cbCluster.initial_node_ip_addr_or_hostname = cbCluster.node_ip_addr_or_hostname
     cbCluster.is_initial_node = True
@@ -308,14 +307,25 @@ def fakeJoin():
         cluster_id="MyCluster1",
         node_ip_addr_or_hostname="ec2-54-215-201-127.us-west-1.compute.amazonaws.com",
     )
+    cbCluster.SetAdminCredentials(admin_user="Administrator", admin_pass="password")
 
     cbCluster.initial_node_ip_addr_or_hostname = "ec2-54-153-46-91.us-west-1.compute.amazonaws.com"
     cbCluster.is_initial_node = False
     cbCluster.Join() 
-        
+
+def fakeCreateOrJoin():
+    cbCluster = CouchbaseCluster(
+        cluster_id="MyCluster1",
+        node_ip_addr_or_hostname="ec2-54-215-201-127.us-west-1.compute.amazonaws.com",
+    )
+    cbCluster.SetAdminCredentials(admin_user="Administrator", admin_pass="password")
+    
+    cbCluster.CreateOrJoin()
+    
 def main():
     # fakeCreate()    
-    fakeJoin()
+    # fakeJoin()
+    fakeCreateOrJoin()
 
 if __name__ == "__main__":
     main()
