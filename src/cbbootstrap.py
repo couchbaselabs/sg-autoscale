@@ -4,23 +4,17 @@ import json
 import subprocess
 import os
 import time
+import sys
 
 """
+This script attempts to bootstrap this machine into a couchbase cluster using the
+cbbootstrap REST API.
 
-Usage example:
+It assumes:
 
-couchbase_cluster = cbbootstrap.CouchbaseCluster(cluster_id, node_hostname)
-   couchbase_cluster.SetAdminCredentials(admin_user="Administrator", admin_pass="Password")
-   couchbase_cluster.CreateOrJoin()
-   couchbase_cluster.AddBucket(
-      Name="data-bucket",
-      PercentRam=0.50,
-   )
-   couchbase_cluster.AddBucket(
-      Name="index-bucket",
-      PercentRam=0.50,
-   )
-   couchbase_cluster.Rebalance()
+- The cbbootstrap REST api is available at CBBOOTSTRAP_API_URL
+- Couchbase Server is installed locally, but not initialized
+
 """
 
 CBBOOTSTRAP_API_URL = "https://5e61vqxs5f.execute-api.us-east-1.amazonaws.com/Prod/cluster"
@@ -326,9 +320,21 @@ def fakeCreateOrJoin():
 
 
 def main():
+
     # fakeCreate()    
     # fakeJoin()
-    fakeCreateOrJoin()
+    # fakeCreateOrJoin()
+
+    cbCluster = CouchbaseCluster(
+        cluster_id=sys.argv[1],
+        node_ip_addr_or_hostname=sys.argv[2],
+    )
+    cbCluster.SetAdminCredentials(admin_user="Administrator", admin_pass="password")
+
+    cbCluster.CreateOrJoin()
+    cbCluster.AddBucket("data-bucket", 0.50)
+    cbCluster.AddBucket("index-bucket", 0.50)
+
 
 if __name__ == "__main__":
     main()
