@@ -333,26 +333,12 @@
                                     "Ref": "AWS::StackName"
                                 },
                                 "\n",
-                                "echo ",
-                                {
-                                    "Fn::GetAtt": [
-                                        "couchbaseserver0",
-                                        "PublicDnsName"
-                                    ]
-                                },
-                                "\n",
+                                "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
                                     "Ref": "AWS::StackName"
                                 },
-                                " ",
-                                {
-                                    "Fn::GetAtt": [
-                                        "couchbaseserver0",
-                                        "PublicDnsName"
-                                    ]
-                                },
-                                "\n",
+                                " ${public_dns_name}\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -412,26 +398,12 @@
                                     "Ref": "AWS::StackName"
                                 },
                                 "\n",
-                                "echo ",
-                                {
-                                    "Fn::GetAtt": [
-                                        "couchbaseserver1",
-                                        "PublicDnsName"
-                                    ]
-                                },
-                                "\n",
+                                "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
                                     "Ref": "AWS::StackName"
                                 },
-                                " ",
-                                {
-                                    "Fn::GetAtt": [
-                                        "couchbaseserver1",
-                                        "PublicDnsName"
-                                    ]
-                                },
-                                "\n",
+                                " ${public_dns_name}\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -491,26 +463,12 @@
                                     "Ref": "AWS::StackName"
                                 },
                                 "\n",
-                                "echo ",
-                                {
-                                    "Fn::GetAtt": [
-                                        "couchbaseserver2",
-                                        "PublicDnsName"
-                                    ]
-                                },
-                                "\n",
+                                "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
                                     "Ref": "AWS::StackName"
                                 },
-                                " ",
-                                {
-                                    "Fn::GetAtt": [
-                                        "couchbaseserver2",
-                                        "PublicDnsName"
-                                    ]
-                                },
-                                "\n",
+                                " ${public_dns_name}\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -570,26 +528,12 @@
                                     "Ref": "AWS::StackName"
                                 },
                                 "\n",
-                                "echo ",
-                                {
-                                    "Fn::GetAtt": [
-                                        "couchbaseserver3",
-                                        "PublicDnsName"
-                                    ]
-                                },
-                                "\n",
+                                "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
                                     "Ref": "AWS::StackName"
                                 },
-                                " ",
-                                {
-                                    "Fn::GetAtt": [
-                                        "couchbaseserver3",
-                                        "PublicDnsName"
-                                    ]
-                                },
-                                "\n",
+                                " ${public_dns_name}\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -649,26 +593,12 @@
                                     "Ref": "AWS::StackName"
                                 },
                                 "\n",
-                                "echo ",
-                                {
-                                    "Fn::GetAtt": [
-                                        "couchbaseserver4",
-                                        "PublicDnsName"
-                                    ]
-                                },
-                                "\n",
+                                "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
                                     "Ref": "AWS::StackName"
                                 },
-                                " ",
-                                {
-                                    "Fn::GetAtt": [
-                                        "couchbaseserver4",
-                                        "PublicDnsName"
-                                    ]
-                                },
-                                "\n",
+                                " ${public_dns_name}\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -728,26 +658,12 @@
                                     "Ref": "AWS::StackName"
                                 },
                                 "\n",
-                                "echo ",
-                                {
-                                    "Fn::GetAtt": [
-                                        "couchbaseserver5",
-                                        "PublicDnsName"
-                                    ]
-                                },
-                                "\n",
+                                "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
                                     "Ref": "AWS::StackName"
                                 },
-                                " ",
-                                {
-                                    "Fn::GetAtt": [
-                                        "couchbaseserver5",
-                                        "PublicDnsName"
-                                    ]
-                                },
-                                "\n",
+                                " ${public_dns_name}\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]

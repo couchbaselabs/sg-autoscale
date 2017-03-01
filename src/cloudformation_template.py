@@ -337,8 +337,8 @@ def userDataCouchbaseServer(instance):
         'cat *.py\n',
         'python sg_autoscale_launch.py\n',
         'echo ', Ref("AWS::StackName"), '\n',
-        'echo ', GetAtt(instance, "PublicDnsName"), '\n',
-        'python cbbootstrap.py ', Ref("AWS::StackName"), ' ', GetAtt(instance, "PublicDnsName"), '\n',
+        'export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n',
+        'python cbbootstrap.py ', Ref("AWS::StackName"), ' ${public_dns_name}\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
 
