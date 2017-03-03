@@ -47,15 +47,20 @@ class CouchbaseCluster:
         Depending on response, either create new cluster or join existing
         """
 
-        self.LoadFromBootstrapAPI()
+        self.CBBootstrapCreateOrJoin()
         if self.is_initial_node:
             self.Create()
         else:
             self.Join()
 
 
-    def LoadFromBootstrapAPI(self):
+    def CBBootstrapCreateOrJoin(self):
+        """
+        Call out to the cbbootrap REST API and do a POST request to create or join
+        a cluster
+        """
 
+        # POST request
         params = {
             'cluster_id': self.cluster_id,
             'node_ip_addr_or_hostname': self.node_ip_addr_or_hostname,
@@ -64,16 +69,35 @@ class CouchbaseCluster:
                               headers = {
                                   "Content-Type": "application/json",
                               },
-                              data = json.dumps(params),
+                              data = json.dumps(params),  # Since adding data, automatically makes it a POST request
         )
         response = urllib2.urlopen(req)
-        data = json.load(response)
+        self.__cbbootstrap_load_properties_from_json_response(response)
+
+
+
+    def CBBootstrapGetClusterInfo(self):
+        """
+        Given a cluster_id, query the cbbootrap rest API and find IP addr or hostname
+        of initial couchbase server node
+        """
+
+        get_cluster_info_url = "{}/{}".format(CBBOOTSTRAP_API_URL, self.cluster_id)
+        response = urllib2.urlopen(get_cluster_info_url)
+        self.__cbbootstrap_load_properties_from_json_response(response)
+
+
+
+    def __cbbootstrap_load_properties_from_json_response(self, json_response):
+
+        data = json.load(json_response)
         print("Server response: {}".format(data))
         self.cluster_id = data["cluster_id"]
         self.initial_node_ip_addr_or_hostname = data["initial_node_ip_addr_or_hostname"]
         self.is_initial_node = data["is_initial_node"]
 
-    def Create(self):
+
+def Create(self):
 
         self.WaitUntilLocalCouchbaseServerRunning()
         
@@ -274,7 +298,6 @@ class CouchbaseCluster:
         
 
 def exec_subprocess(subprocess_args):
-
     print("Calling Couchbase CLI with {}".format(" ".join(subprocess_args)))
     
     try:
@@ -290,6 +313,18 @@ def exec_subprocess(subprocess_args):
             )
         )
         raise e
+
+def discover_initial_couchbase_server_ip(cluster_id):
+    """
+    Given a cluster-id, discover the ip address or hostname of the initial couchbase server node IP address.
+    This will do a back off retry several times to wait for it to become available
+    """
+
+    cbCluster = CouchbaseCluster(
+        cluster_id=cluster_id,
+    )
+    cbCluster.CBBootstrapGetClusterInfo()
+    return cbCluster.initial_node_ip_addr_or_hostname
 
         
 def fakeCreate():

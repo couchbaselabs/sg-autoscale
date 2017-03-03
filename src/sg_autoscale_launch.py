@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+import sg_launch
+import os
+import re
+import socket
+import argparse
+import cbbootstrap
+from string import Template
 
 # If you are running Sync Gateway, customize your configuration here
 sync_gateway_config = """
@@ -11,10 +18,10 @@ sync_gateway_config = """
     "interface":"0.0.0.0:4984",
     "databases":{
         "db":{
-            "server":"http://cb1.sgautoscale.couchbasemobile.com:8091",
+            "server":"http://$couchbase_server_ip:8091",
             "bucket":"data-bucket",
             "channel_index":{
-                "server":"http://cb1.sgautoscale.couchbasemobile.com:8091",
+                "server":"http://$couchbase_server_ip:8091",
                 "bucket":"index-bucket",
                 "writer":false
             },
@@ -41,27 +48,24 @@ sg_accel_config = """
     "interface":"0.0.0.0:4984",
     "databases":{
         "default":{
-            "server":"http://cb1.sgautoscale.couchbasemobile.com:8091",
+            "server":"http://$couchbase_server_ip:8091",
             "bucket":"data-bucket",
             "channel_index":{
-                "server":"http://cb1.sgautoscale.couchbasemobile.com:8091",
+                "server":"http://$couchbase_server_ip:8091",
                 "bucket":"index-bucket",
                 "writer":true
             }
         }
     },
     "cluster_config":{
-        "server":"http://cb1.sgautoscale.couchbasemobile.com:8091",
+        "server":"http://$couchbase_server_ip:8091",
         "bucket":"data-bucket",
         "data_dir":"."
     }
 }
 """
 
-import sg_launch
-import os
-import re
-import socket
+
    
 def install_telegraf(server_type):
    
@@ -137,13 +141,31 @@ def install_telegraf(server_type):
    os.system("systemctl restart telegraf")
 
 
+def relaunch_sg_with_custom_config(stack_name):
+
+    # Use cbbootrap to call REST API to discover the IP address of the initial couchbase server node
+    couchbase_server_ip = cbbootstrap.discover_initial_couchbase_server_ip(args.stack_name)
+
+    template = Template(sync_gateway_config)
+    sync_gateway_config_rendered = template.substitute(couchbase_server_ip=couchbase_server_ip)
+
+    template = Template(sg_accel_config)
+    sg_accel_config_rendered = template.substitute(couchbase_server_ip=couchbase_server_ip)
+
+    sg_launch.main(sync_gateway_config_rendered, sg_accel_config_rendered)
+
+
 if __name__ == "__main__":
 
-   sg_launch.main(sync_gateway_config, sg_accel_config)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--stack-name", help="The name of the cloudformation stack, so that cbbootstrap can discover couchbase server IP address", required=True)
+    args = parser.parse_args()
 
-   server_type = sg_launch.discover_sg_server_type()
+    relaunch_sg_with_custom_config(args.stack_name)
 
-   install_telegraf(server_type)
+    server_type = sg_launch.discover_sg_server_type()
+
+    install_telegraf(server_type)
 
 
    

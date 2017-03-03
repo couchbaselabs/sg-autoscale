@@ -330,19 +330,22 @@ def gen_template(config):
     return t.to_json()
 
 # The "user data" launch script that runs on startup on SG and SG Accel EC2 instances.
-# This uses "cloud-init" which is pre-installed on the EC2 instances, and the logs are
-# available in /var/log/cloud-init-output.log
+# The output from this script is available on the ec2 instance in /var/log/cloud-init-output.log
 # ----------------------------------------------------------------------------------------------------------------------
 def userData():
     return Base64(Join('', [
         '#!/bin/bash\n',
         'wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
+        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n',
         'cat *.py\n',
-        'python sg_autoscale_launch.py\n',
+        'python sg_autoscale_launch.py --stack-name ', Ref("AWS::StackName"), '\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
 
+# The "user data" launch script that runs on startup on Couchbase Server instances
+# The output from this script is available on the ec2 instance in /var/log/cloud-init-output.log
+# ----------------------------------------------------------------------------------------------------------------------
 def userDataCouchbaseServer(instance):
 
     # TODO
@@ -360,8 +363,7 @@ def userDataCouchbaseServer(instance):
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n',
         'cat *.py\n',
-        'python sg_autoscale_launch.py\n',
-        'echo ', Ref("AWS::StackName"), '\n',
+        'python sg_autoscale_launch.py\n',  # on couchbase server machines, just installs telegraf.  might need to refactor this out
         'export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n',
         'python cbbootstrap.py ', Ref("AWS::StackName"), ' ${public_dns_name}\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
