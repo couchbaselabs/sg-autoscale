@@ -97,7 +97,7 @@ class CouchbaseCluster:
         self.is_initial_node = data["is_initial_node"]
 
 
-def Create(self):
+    def Create(self):
 
         self.WaitUntilLocalCouchbaseServerRunning()
         
