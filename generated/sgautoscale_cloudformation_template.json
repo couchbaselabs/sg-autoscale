@@ -1,11 +1,6 @@
 {
     "Description": "An Ec2-classic stack with Sync Gateway + Accelerator + Couchbase Server with horizontally scalable AutoScaleGroup",
     "Outputs": {
-        "SGAutoScaleLoadBalancer": {
-            "Value": {
-                "Ref": "SGAutoScaleLoadBalancer"
-            }
-        },
         "SGAutoScaleLoadBalancerPublicDNS": {
             "Value": {
                 "Fn::GetAtt": [
@@ -148,6 +143,11 @@
                         "Key": "Type",
                         "PropagateAtLaunch": true,
                         "Value": "sgaccel"
+                    },
+                    {
+                        "Key": "Name",
+                        "PropagateAtLaunch": true,
+                        "Value": "sgaccel_autoscale_instance"
                     }
                 ]
             },
@@ -186,8 +186,13 @@
                                 "#!/bin/bash\n",
                                 "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
-                                "python sg_autoscale_launch.py\n",
+                                "python sg_autoscale_launch.py --stack-name ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -263,6 +268,11 @@
                         "Key": "Type",
                         "PropagateAtLaunch": true,
                         "Value": "syncgateway"
+                    },
+                    {
+                        "Key": "Name",
+                        "PropagateAtLaunch": true,
+                        "Value": "syncgateway_autoscale_instance"
                     }
                 ]
             },
@@ -301,8 +311,13 @@
                                 "#!/bin/bash\n",
                                 "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
-                                "python sg_autoscale_launch.py\n",
+                                "python sg_autoscale_launch.py --stack-name ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -359,11 +374,6 @@
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py\n",
-                                "echo ",
-                                {
-                                    "Ref": "AWS::StackName"
-                                },
-                                "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
@@ -426,11 +436,6 @@
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py\n",
-                                "echo ",
-                                {
-                                    "Ref": "AWS::StackName"
-                                },
-                                "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
@@ -493,11 +498,6 @@
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py\n",
-                                "echo ",
-                                {
-                                    "Ref": "AWS::StackName"
-                                },
-                                "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
@@ -560,11 +560,6 @@
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py\n",
-                                "echo ",
-                                {
-                                    "Ref": "AWS::StackName"
-                                },
-                                "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
@@ -627,11 +622,6 @@
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py\n",
-                                "echo ",
-                                {
-                                    "Ref": "AWS::StackName"
-                                },
-                                "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
@@ -694,11 +684,6 @@
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py\n",
-                                "echo ",
-                                {
-                                    "Ref": "AWS::StackName"
-                                },
-                                "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
@@ -756,8 +741,13 @@
                                 "#!/bin/bash\n",
                                 "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
-                                "python sg_autoscale_launch.py\n",
+                                "python sg_autoscale_launch.py --stack-name ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
