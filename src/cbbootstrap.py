@@ -31,7 +31,7 @@ couchbase_server_bucket_replica = 1
         
 class CouchbaseCluster:
 
-    def __init__(self, cluster_id, node_ip_addr_or_hostname):
+    def __init__(self, cluster_id, node_ip_addr_or_hostname=""):
         self.cluster_id = cluster_id
         self.node_ip_addr_or_hostname = node_ip_addr_or_hostname
 
