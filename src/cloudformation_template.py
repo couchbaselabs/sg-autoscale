@@ -250,6 +250,7 @@ def gen_template(config):
         LoadBalancerNames=[Ref(SGAutoScaleLoadBalancer)],
         Tags=[
             autoscaling.Tag(key="Type", value="syncgateway", propogate=True),
+            autoscaling.Tag(key="Name", value="syncgateway_autoscale_instance", propogate=True),
         ],
         MaxSize=100,
         MinSize=0,
@@ -285,6 +286,7 @@ def gen_template(config):
         LaunchConfigurationName=Ref(SGAccelLaunchConfiguration),
         Tags=[
             autoscaling.Tag(key="Type", value="sgaccel", propogate=True),
+            autoscaling.Tag(key="Name", value="sgaccel_autoscale_instance", propogate=True),
         ],
         MaxSize=100,
         MinSize=0,
