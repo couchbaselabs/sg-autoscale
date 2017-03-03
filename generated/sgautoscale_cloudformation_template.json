@@ -1,5 +1,20 @@
 {
     "Description": "An Ec2-classic stack with Sync Gateway + Accelerator + Couchbase Server with horizontally scalable AutoScaleGroup",
+    "Outputs": {
+        "SGAutoScaleLoadBalancer": {
+            "Value": {
+                "Ref": "SGAutoScaleLoadBalancer"
+            }
+        },
+        "SGAutoScaleLoadBalancerPublicDNS": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "SGAutoScaleLoadBalancer",
+                    "DNSName"
+                ]
+            }
+        }
+    },
     "Parameters": {
         "KeyName": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access",

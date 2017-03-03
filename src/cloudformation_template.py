@@ -2,7 +2,7 @@
 # Python script to generate an AWS CloudFormation template json file
 
 import collections
-from troposphere import Ref, Template, Parameter, Tags, Base64, Join, GetAtt
+from troposphere import Ref, Template, Parameter, Tags, Base64, Join, GetAtt, Output
 import troposphere.autoscaling as autoscaling
 from troposphere.elasticloadbalancing import LoadBalancer
 from troposphere import GetAZs
@@ -317,6 +317,15 @@ def gen_template(config):
         ]
 
         t.add_resource(instance)
+
+    # Outputs
+    # ------------------------------------------------------------------------------------------------------------------
+    t.add_output([
+        Output(
+            "SGAutoScaleLoadBalancerPublicDNS",
+            Value=GetAtt(SGAutoScaleLoadBalancer, "DNSName")
+        ),
+    ])
 
     return t.to_json()
 
