@@ -1,1 +1,2 @@
-troposphere==1.5.0
+troposphere
+awscli
