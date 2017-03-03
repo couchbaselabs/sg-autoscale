@@ -29,6 +29,12 @@ $ direnv allow
 $ source setup.sh
 ```
 
+## Generate Cloudformation template
+
+```
+$ python src/cloudformation_template.py
+```
+
 ## Create Cloudformation Stack
 
 You will need to first:

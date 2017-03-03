@@ -417,7 +417,7 @@ def main():
 
     templ_json = gen_template(config)
 
-    template_file_name = "../generated/sgautoscale_cloudformation_template.json"
+    template_file_name = "generated/sgautoscale_cloudformation_template.json"
     with open(template_file_name, 'w') as f:
         f.write(templ_json)
 
