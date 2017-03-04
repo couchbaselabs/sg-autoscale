@@ -235,7 +235,17 @@
                         "Protocol": "HTTP"
                     }
                 ],
-                "LoadBalancerName": "SGAutoScaleLoadBalancer",
+                "LoadBalancerName": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "SGAutoScaleLoadBalancer-",
+                            {
+                                "Ref": "AWS::StackName"
+                            }
+                        ]
+                    ]
+                },
                 "Scheme": "internet-facing",
                 "SecurityGroups": [
                     {
