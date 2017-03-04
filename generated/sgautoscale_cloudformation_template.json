@@ -338,8 +338,8 @@
         },
         "SgAutoScaleDNS": {
             "Properties": {
-                "HostedZoneName": "couchbasemobile.com",
-                "Name": "sgautoscale.couchbasemobile.com",
+                "HostedZoneName": "couchbasemobile.com.",
+                "Name": "sgautoscale.couchbasemobile.com.",
                 "ResourceRecords": [
                     {
                         "Fn::GetAtt": [

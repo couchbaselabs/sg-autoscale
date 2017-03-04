@@ -443,7 +443,7 @@ def main():
         load_generator_instance_type="c3.2xlarge",
         load_generator_ami_id=load_generator_ami_ids_per_region[region],
         load_balancer_dns_hostname="sgautoscale",
-        load_balancer_dns_hosted_zone_name="couchbasemobile.com",
+        load_balancer_dns_hosted_zone_name="couchbasemobile.com.",
     )
 
     templ_json = gen_template(config)
