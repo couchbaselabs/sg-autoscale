@@ -161,9 +161,11 @@ if __name__ == "__main__":
     parser.add_argument("--stack-name", help="The name of the cloudformation stack, so that cbbootstrap can discover couchbase server IP address", required=True)
     args = parser.parse_args()
 
-    relaunch_sg_with_custom_config(args.stack_name)
+    server_type = sg_launch.discover_server_type()
 
-    server_type = sg_launch.discover_sg_server_type()
+    # For sync gateways, relaunch sync gateway with correct config.
+    if sg_launch.is_sync_gateway_or_accel(server_type):
+        relaunch_sg_with_custom_config(args.stack_name, server_type)
 
     install_telegraf(server_type)
 

@@ -373,7 +373,11 @@
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
-                                "python sg_autoscale_launch.py\n",
+                                "python sg_autoscale_launch.py --stack-name ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
@@ -435,7 +439,11 @@
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
-                                "python sg_autoscale_launch.py\n",
+                                "python sg_autoscale_launch.py --stack-name ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
@@ -497,7 +505,11 @@
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
-                                "python sg_autoscale_launch.py\n",
+                                "python sg_autoscale_launch.py --stack-name ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
@@ -559,7 +571,11 @@
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
-                                "python sg_autoscale_launch.py\n",
+                                "python sg_autoscale_launch.py --stack-name ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
@@ -621,7 +637,11 @@
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
-                                "python sg_autoscale_launch.py\n",
+                                "python sg_autoscale_launch.py --stack-name ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
@@ -683,7 +703,11 @@
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
                                 "cat *.py\n",
-                                "python sg_autoscale_launch.py\n",
+                                "python sg_autoscale_launch.py --stack-name ",
+                                {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
