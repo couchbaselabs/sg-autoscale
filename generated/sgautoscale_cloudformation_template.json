@@ -349,7 +349,7 @@
                     }
                 ],
                 "TTL": "900",
-                "Type": "C"
+                "Type": "CNAME"
             },
             "Type": "AWS::Route53::RecordSet"
         },

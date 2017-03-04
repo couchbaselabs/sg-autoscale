@@ -230,7 +230,7 @@ def gen_template(config):
             TTL="900",
             Name="{}.{}".format(config.load_balancer_dns_hostname, config.load_balancer_dns_hosted_zone_name),
             HostedZoneName=config.load_balancer_dns_hosted_zone_name,
-            Type="C",
+            Type="CNAME",
         )
     )
 
