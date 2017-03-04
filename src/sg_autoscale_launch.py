@@ -144,7 +144,7 @@ def install_telegraf(server_type):
 def relaunch_sg_with_custom_config(stack_name):
 
     # Use cbbootrap to call REST API to discover the IP address of the initial couchbase server node
-    couchbase_server_ip = cbbootstrap.discover_initial_couchbase_server_ip(args.stack_name)
+    couchbase_server_ip = cbbootstrap.discover_initial_couchbase_server_ip(stack_name)
 
     template = Template(sync_gateway_config)
     sync_gateway_config_rendered = template.substitute(couchbase_server_ip=couchbase_server_ip)
@@ -165,7 +165,7 @@ if __name__ == "__main__":
 
     # For sync gateways, relaunch sync gateway with correct config.
     if sg_launch.is_sync_gateway_or_accel(server_type):
-        relaunch_sg_with_custom_config(args.stack_name, server_type)
+        relaunch_sg_with_custom_config(args.stack_name)
 
     install_telegraf(server_type)
 
