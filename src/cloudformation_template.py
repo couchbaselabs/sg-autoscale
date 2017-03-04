@@ -9,6 +9,7 @@ from troposphere import GetAZs
 import troposphere.ec2 as ec2
 import troposphere.elasticloadbalancing as elb
 from troposphere import iam
+from troposphere.route53 import RecordSetType
 
 def gen_template(config):
 
@@ -220,6 +221,19 @@ def gen_template(config):
     )
     t.add_resource(SGAutoScaleLoadBalancer)
 
+    t.add_resource(
+        RecordSetType(
+            title="SgAutoScaleDNS",
+            ResourceRecords=[
+                GetAtt(SGAutoScaleLoadBalancer, "DNSName")
+            ],
+            TTL="900",
+            Name="{}.{}".format(config.load_balancer_dns_hostname, config.load_balancer_dns_hosted_zone_name),
+            HostedZoneName=config.load_balancer_dns_hosted_zone_name,
+            Type="C",
+        )
+    )
+
     # SG AutoScaleGroup
     # ------------------------------------------------------------------------------------------------------------------
     SGLaunchConfiguration = autoscaling.LaunchConfiguration(
@@ -387,6 +401,8 @@ def main():
             'sync_gateway_ami_id',
             'sg_accel_ami_id',
             'load_generator_ami_id',
+            'load_balancer_dns_hostname',
+            'load_balancer_dns_hosted_zone_name',
         ]),
     )
 
@@ -426,6 +442,8 @@ def main():
         num_load_generators=1,
         load_generator_instance_type="c3.2xlarge",
         load_generator_ami_id=load_generator_ami_ids_per_region[region],
+        load_balancer_dns_hostname="sgautoscale",
+        load_balancer_dns_hosted_zone_name="couchbasemobile.com",
     )
 
     templ_json = gen_template(config)

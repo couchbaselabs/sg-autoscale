@@ -336,6 +336,23 @@
             },
             "Type": "AWS::AutoScaling::LaunchConfiguration"
         },
+        "SgAutoScaleDNS": {
+            "Properties": {
+                "HostedZoneName": "couchbasemobile.com",
+                "Name": "sgautoscale.couchbasemobile.com",
+                "ResourceRecords": [
+                    {
+                        "Fn::GetAtt": [
+                            "SGAutoScaleLoadBalancer",
+                            "DNSName"
+                        ]
+                    }
+                ],
+                "TTL": "900",
+                "Type": "C"
+            },
+            "Type": "AWS::Route53::RecordSet"
+        },
         "couchbaseserver0": {
             "Properties": {
                 "BlockDeviceMappings": [
