@@ -215,7 +215,7 @@ def gen_template(config):
         ],
         CrossZone=True,
         SecurityGroups=[GetAtt("CouchbaseSecurityGroup", "GroupId")],
-        LoadBalancerName=Join('',["SGAutoScaleLoadBalancer-", Ref("AWS::StackName")]),
+        LoadBalancerName=Join('',["SGAS-", Ref("AWS::StackName")]),
         Scheme="internet-facing",
     )
     t.add_resource(SGAutoScaleLoadBalancer)

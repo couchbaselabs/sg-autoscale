@@ -239,7 +239,7 @@
                     "Fn::Join": [
                         "",
                         [
-                            "SGAutoScaleLoadBalancer-",
+                            "SGAS-",
                             {
                                 "Ref": "AWS::StackName"
                             }
