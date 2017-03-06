@@ -373,7 +373,6 @@ def userDataCouchbaseServer():
 
     return Base64(Join('', [
         '#!/bin/bash\n',
-        'systemctl status couchbase-server\n',
         'sleep 60\n',  # workaround for https://issues.couchbase.com/browse/MB-23081
         'wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
