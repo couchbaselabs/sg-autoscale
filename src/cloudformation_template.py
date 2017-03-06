@@ -355,7 +355,7 @@ def userData():
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n',
         'cat *.py\n',
-        'python sg_autoscale_launch.py --stack-name ', Ref("AWS::StackName"), '\n',
+        'python sg_autoscale_launch.py --stack-name ', Ref("AWS::StackId"), '\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
 
@@ -379,9 +379,9 @@ def userDataCouchbaseServer(instance):
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n',
         'cat *.py\n',
-        'python sg_autoscale_launch.py --stack-name ', Ref("AWS::StackName"), '\n',  # on couchbase server machines, only installs telegraf.
+        'python sg_autoscale_launch.py --stack-name ', Ref("AWS::StackId"), '\n',  # on couchbase server machines, only installs telegraf.
         'export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n',
-        'python cbbootstrap.py ', Ref("AWS::StackName"), ' ${public_dns_name}\n',
+        'python cbbootstrap.py ', Ref("AWS::StackId"), ' ${public_dns_name}\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
 

@@ -190,7 +190,7 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "ethtool -K eth0 sg off\n"
@@ -325,7 +325,7 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "ethtool -K eth0 sg off\n"
@@ -402,13 +402,13 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 " ${public_dns_name}\n",
                                 "ethtool -K eth0 sg off\n"
@@ -468,13 +468,13 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 " ${public_dns_name}\n",
                                 "ethtool -K eth0 sg off\n"
@@ -534,13 +534,13 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 " ${public_dns_name}\n",
                                 "ethtool -K eth0 sg off\n"
@@ -600,13 +600,13 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 " ${public_dns_name}\n",
                                 "ethtool -K eth0 sg off\n"
@@ -666,13 +666,13 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 " ${public_dns_name}\n",
                                 "ethtool -K eth0 sg off\n"
@@ -732,13 +732,13 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 " ${public_dns_name}\n",
                                 "ethtool -K eth0 sg off\n"
@@ -796,7 +796,7 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Ref": "AWS::StackName"
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "ethtool -K eth0 sg off\n"
