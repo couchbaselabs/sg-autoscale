@@ -167,7 +167,7 @@ def gen_template(config):
         instance.KeyName = Ref(keyname_param)
         instance.Tags = Tags(Name=name, Type="couchbaseserver")
         instance.IamInstanceProfile = Ref(instanceProfile)
-        instance.UserData = userDataCouchbaseServer(instance)
+        instance.UserData = userDataCouchbaseServer()
         instance.BlockDeviceMappings = [
             ec2.BlockDeviceMapping(
                 DeviceName="/dev/sda1",
@@ -243,7 +243,7 @@ def gen_template(config):
         IamInstanceProfile=Ref(instanceProfile),
         InstanceType=sync_gateway_server_type,
         SecurityGroups=[Ref(secGrpCouchbase)],
-        UserData=userData(),
+        UserData=userDataSyncGatewayOrAccel(),
         BlockDeviceMappings=[
             ec2.BlockDeviceMapping(
                 DeviceName="/dev/sda1",
@@ -280,7 +280,7 @@ def gen_template(config):
         IamInstanceProfile=Ref(instanceProfile),
         InstanceType=sync_gateway_server_type,
         SecurityGroups=[Ref(secGrpCouchbase)],
-        UserData=userData(),
+        UserData=userDataSyncGatewayOrAccel(),
         BlockDeviceMappings=[
             ec2.BlockDeviceMapping(
                 DeviceName="/dev/sda1",
@@ -319,7 +319,7 @@ def gen_template(config):
         instance.SecurityGroups = [Ref(secGrpCouchbase)]
         instance.KeyName = Ref(keyname_param)
         instance.IamInstanceProfile = Ref(instanceProfile)
-        instance.UserData = userData()
+        instance.UserData = userDataSyncGatewayOrAccel()
         instance.Tags = Tags(Name=name, Type="loadgenerator")
         instance.BlockDeviceMappings = [
             ec2.BlockDeviceMapping(
@@ -348,21 +348,21 @@ def gen_template(config):
 # The "user data" launch script that runs on startup on SG and SG Accel EC2 instances.
 # The output from this script is available on the ec2 instance in /var/log/cloud-init-output.log
 # ----------------------------------------------------------------------------------------------------------------------
-def userData():
+def userDataSyncGatewayOrAccel():
     return Base64(Join('', [
         '#!/bin/bash\n',
         'wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n',
         'cat *.py\n',
-        'python sg_autoscale_launch.py --stack-name ', Ref("AWS::StackId"), '\n',
+        'python sg_autoscale_launch.py --stack-name ', Base64(Ref("AWS::StackId")), '\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
 
 # The "user data" launch script that runs on startup on Couchbase Server instances
 # The output from this script is available on the ec2 instance in /var/log/cloud-init-output.log
 # ----------------------------------------------------------------------------------------------------------------------
-def userDataCouchbaseServer(instance):
+def userDataCouchbaseServer():
 
     # TODO
     """
@@ -379,9 +379,9 @@ def userDataCouchbaseServer(instance):
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n',
         'cat *.py\n',
-        'python sg_autoscale_launch.py --stack-name ', Ref("AWS::StackId"), '\n',  # on couchbase server machines, only installs telegraf.
+        'python sg_autoscale_launch.py --stack-name ', Base64(Ref("AWS::StackId")), '\n',  # on couchbase server machines, only installs telegraf.
         'export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n',
-        'python cbbootstrap.py ', Ref("AWS::StackId"), ' ${public_dns_name}\n',
+        'python cbbootstrap.py ', Base64(Ref("AWS::StackId")), ' ${public_dns_name}\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
 
