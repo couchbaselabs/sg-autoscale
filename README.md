@@ -32,7 +32,7 @@ $ source setup.sh
 ## Generate Cloudformation template
 
 ```
-$ python src/cloudformation_template.py
+$ python src/sgautoscale_cloudformation_template.py
 ```
 
 ## Create Cloudformation Stack
