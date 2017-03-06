@@ -138,7 +138,7 @@ def install_telegraf(server_type):
    print("Wrote updated content to {}.  Content: {}".format(telegraf_config_dest, telegraf_config_content))
 
    # Restart telegraf
-   os.system("systemctl restart telegraf")
+   os.system("service telegraf restart")
 
 
 def relaunch_sg_with_custom_config(stack_name):
