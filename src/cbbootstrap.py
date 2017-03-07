@@ -5,6 +5,7 @@ import subprocess
 import os
 import time
 import sys
+import argparse
 
 """
 This script attempts to bootstrap this machine into a couchbase cluster using the
@@ -17,6 +18,7 @@ It assumes:
 
 """
 
+# This is an AWS Lambda function running behind a API Gateway.  The code is available at https://github.com/couchbase/cbbootstrap
 CBBOOTSTRAP_API_URL = "https://5e61vqxs5f.execute-api.us-east-1.amazonaws.com/Prod/cluster"
 
 couchbase_server_bin_path = "/opt/couchbase/bin"
@@ -355,63 +357,53 @@ def discover_initial_couchbase_server_ip(cluster_id):
     return cbCluster.initial_node_ip_addr_or_hostname
 
         
-def fakeCreate():
-
-    cbCluster = CouchbaseCluster(
-        cluster_id="MyCluster1",
-        node_ip_addr_or_hostname=os.environ["node_ip_addr_or_hostname"],                
-    )
-    cbCluster.SetAdminCredentials(admin_user="Administrator", admin_pass="password")
-
-    cbCluster.initial_node_ip_addr_or_hostname = cbCluster.node_ip_addr_or_hostname
-    cbCluster.is_initial_node = True
-    cbCluster.Create()
-    cbCluster.AddBucket("data-bucket", 0.50)
-    cbCluster.AddBucket("index-bucket", 0.50)    
-
-    
-def fakeJoin():
-    
-    cbCluster = CouchbaseCluster(
-        cluster_id="MyCluster1",
-        node_ip_addr_or_hostname=os.environ["node_ip_addr_or_hostname"],        
-    )
-    cbCluster.SetAdminCredentials(admin_user="Administrator", admin_pass="password")
-
-    cbCluster.initial_node_ip_addr_or_hostname = os.environ["initial_node_ip_addr_or_hostname"]        
-    cbCluster.is_initial_node = False
-    cbCluster.Join() 
-
-def fakeCreateOrJoin():
-    cbCluster = CouchbaseCluster(
-        cluster_id="MyCluster1",
-        node_ip_addr_or_hostname=os.environ["node_ip_addr_or_hostname"],
-    )
-    cbCluster.SetAdminCredentials(admin_user="Administrator", admin_pass="password")
-    
-    cbCluster.CreateOrJoin()
-    cbCluster.AddBucket("data-bucket", 0.50)
-    cbCluster.AddBucket("index-bucket", 0.50)    
-
 
 def main():
 
-    # fakeCreate()    
-    # fakeJoin()
-    # fakeCreateOrJoin()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cluster-id",
+                        help="The cluster-id to use for cbbootstrap.  Should be as unique as possible, for example like an AWS stack ID ran through base64",
+                        required=True)
+    parser.add_argument("--node-ip-addr-or-hostname",
+                        help="The ip address or hostname that will be recorded so that other couchbase servers or other components can connect to this node if it becomes initial node",
+                        required=True)
+    parser.add_argument("--admin-user",
+                        help="The username of the Couchbase Server admin user to create or connect as",
+                        required=True)
+    parser.add_argument("--admin-pass",
+                        help="The password of the Couchbase Server admin user to create or connect as",
+                        required=True)
 
-    # TODO: parameterize the admin user, admin pass and use argparse
-    # TODO: then update cloudformation templates to pass this in via template params
+    args = parser.parse_args()
 
-    print("{} called with cluster_id {}, node_ip_addr_or_hostname {}".format(sys.argv[0], sys.argv[1], sys.argv[2]))
+    # make sure the cluster-id doesn't contain invalid chars
+    url_quoted_cluster_id = urllib2.quote(args.cluster_id, safe='')
+    if url_quoted_cluster_id != args.cluster_id:
+        raise Exception("The cluster-id {} appears to have characters unsafe for urls." +
+                        " The url quoted version is {}.  Consider base64 encoding it".format(
+                            args.cluster_id,
+                            url_quoted_cluster_id))
+
+    print("{} called with cluster_id {}, node_ip_addr_or_hostname {}, admin user {}".format(
+        sys.argv[0],
+        args.cluster_id,
+        args.node_ip_addr_or_hostname,
+        args.admin_user,
+    ))
 
     cbCluster = CouchbaseCluster(
-        cluster_id=sys.argv[1],
-        node_ip_addr_or_hostname=sys.argv[2],
+        cluster_id=args.cluster_id,
+        node_ip_addr_or_hostname=args.node_ip_addr_or_hostname,
     )
-    cbCluster.SetAdminCredentials(admin_user="Administrator", admin_pass="password")
+    cbCluster.SetAdminCredentials(
+        admin_user=args.admin_user,
+        admin_pass=args.admin_pass,
+    )
 
+    # Call out to cbbootstrap API to figure out whether to create or join, then actually create or join
     cbCluster.CreateOrJoin()
+
+    # Create buckets (TODO: these should be CLI arguments)
     cbCluster.AddBucket("data-bucket", 0.50)
     cbCluster.AddBucket("index-bucket", 0.50)
 

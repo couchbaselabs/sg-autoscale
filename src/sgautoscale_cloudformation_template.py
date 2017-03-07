@@ -359,7 +359,7 @@ def userDataCouchbaseServer(build_repo_commit, sgautoscale_repo_commit):
         'cat *.py\n',
         'python sg_autoscale_launch.py --stack-name ', Base64(Ref("AWS::StackId")), '\n',  # on couchbase server machines, only installs telegraf.
         'export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n',
-        'python cbbootstrap.py ', Base64(Ref("AWS::StackId")), ' ${public_dns_name}\n',
+        'python cbbootstrap.py --cluster-id ', Base64(Ref("AWS::StackId")), ' --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
 
@@ -432,8 +432,8 @@ def main():
         block_device_name="/dev/sda1",  # "/dev/sda1" for centos, /dev/xvda for amazon linux ami
         block_device_volume_size_by_server_type={"couchbaseserver": 200, "syncgateway": 25, "sgaccel": 25, "loadgenerator": 25},
         block_device_volume_type="gp2",
-        build_repo_commit="0b5217c53d25d5974859014b4f241c51de9a79b1",
-        sgautoscale_repo_commit="abba14fe90e281b5a801e6d2397cb5f152a2097f",
+        build_repo_commit="master",
+        sgautoscale_repo_commit="master",
 
     )
 
