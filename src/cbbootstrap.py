@@ -85,7 +85,8 @@ class CouchbaseCluster:
         response = urllib2.urlopen(get_cluster_info_url)
         self.__cbbootstrap_load_properties_from_json_response(response)
 
-
+    def CBBootstrapGetClusterInfoRetry(self):
+        self.Retry(self.CBBootstrapGetClusterInfo)
 
     def __cbbootstrap_load_properties_from_json_response(self, json_response):
 
@@ -350,7 +351,7 @@ def discover_initial_couchbase_server_ip(cluster_id):
     cbCluster = CouchbaseCluster(
         cluster_id=cluster_id,
     )
-    cbCluster.CBBootstrapGetClusterInfo()
+    cbCluster.CBBootstrapGetClusterInfoRetry()
     return cbCluster.initial_node_ip_addr_or_hostname
 
         
