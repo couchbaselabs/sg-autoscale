@@ -1,6 +1,14 @@
 {
     "Description": "An Ec2-classic stack with Sync Gateway + Accelerator + Couchbase Server with horizontally scalable AutoScaleGroup",
     "Parameters": {
+        "CouchbaseServerAdminPassParam": {
+            "Description": "The Couchbase Server Admin password",
+            "Type": "String"
+        },
+        "CouchbaseServerAdminUserParam": {
+            "Description": "The Couchbase Server Admin username",
+            "Type": "String"
+        },
         "KeyName": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access",
             "Type": "String"
@@ -384,7 +392,15 @@
                                 {
                                     "Ref": "AWS::StackId"
                                 },
-                                " --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n",
+                                " --node-ip-addr-or-hostname ${public_dns_name} --admin-user ",
+                                {
+                                    "Ref": "CouchbaseServerAdminUserParam"
+                                },
+                                " --admin-pass ",
+                                {
+                                    "Ref": "CouchbaseServerAdminPassParam"
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -451,7 +467,15 @@
                                 {
                                     "Ref": "AWS::StackId"
                                 },
-                                " --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n",
+                                " --node-ip-addr-or-hostname ${public_dns_name} --admin-user ",
+                                {
+                                    "Ref": "CouchbaseServerAdminUserParam"
+                                },
+                                " --admin-pass ",
+                                {
+                                    "Ref": "CouchbaseServerAdminPassParam"
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -518,7 +542,15 @@
                                 {
                                     "Ref": "AWS::StackId"
                                 },
-                                " --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n",
+                                " --node-ip-addr-or-hostname ${public_dns_name} --admin-user ",
+                                {
+                                    "Ref": "CouchbaseServerAdminUserParam"
+                                },
+                                " --admin-pass ",
+                                {
+                                    "Ref": "CouchbaseServerAdminPassParam"
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -585,7 +617,15 @@
                                 {
                                     "Ref": "AWS::StackId"
                                 },
-                                " --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n",
+                                " --node-ip-addr-or-hostname ${public_dns_name} --admin-user ",
+                                {
+                                    "Ref": "CouchbaseServerAdminUserParam"
+                                },
+                                " --admin-pass ",
+                                {
+                                    "Ref": "CouchbaseServerAdminPassParam"
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -652,7 +692,15 @@
                                 {
                                     "Ref": "AWS::StackId"
                                 },
-                                " --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n",
+                                " --node-ip-addr-or-hostname ${public_dns_name} --admin-user ",
+                                {
+                                    "Ref": "CouchbaseServerAdminUserParam"
+                                },
+                                " --admin-pass ",
+                                {
+                                    "Ref": "CouchbaseServerAdminPassParam"
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]
@@ -719,7 +767,15 @@
                                 {
                                     "Ref": "AWS::StackId"
                                 },
-                                " --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n",
+                                " --node-ip-addr-or-hostname ${public_dns_name} --admin-user ",
+                                {
+                                    "Ref": "CouchbaseServerAdminUserParam"
+                                },
+                                " --admin-pass ",
+                                {
+                                    "Ref": "CouchbaseServerAdminPassParam"
+                                },
+                                "\n",
                                 "ethtool -K eth0 sg off\n"
                             ]
                         ]

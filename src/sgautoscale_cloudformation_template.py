@@ -24,6 +24,23 @@ def gen_template(config):
         'An Ec2-classic stack with Sync Gateway + Accelerator + Couchbase Server with horizontally scalable AutoScaleGroup'
     )
 
+
+    #
+    # Parameters
+    #
+    keyname_param = t.add_parameter(Parameter(
+        'KeyName', Type='String',
+        Description='Name of an existing EC2 KeyPair to enable SSH access'
+    ))
+    couchbase_server_admin_user_param = t.add_parameter(Parameter(
+        'CouchbaseServerAdminUserParam', Type='String',
+        Description='The Couchbase Server Admin username'
+    ))
+    couchbase_server_admin_pass_param = t.add_parameter(Parameter(
+        'CouchbaseServerAdminPassParam', Type='String',
+        Description='The Couchbase Server Admin password'
+    ))
+
     # Security Group + Launch Keypair
     # ------------------------------------------------------------------------------------------------------------------
     def createCouchbaseSecurityGroups(t):
@@ -112,13 +129,7 @@ def gen_template(config):
 
         return secGrpCouchbase
 
-    #
-    # Parameters
-    #
-    keyname_param = t.add_parameter(Parameter(
-        'KeyName', Type='String',
-        Description='Name of an existing EC2 KeyPair to enable SSH access'
-    ))
+
 
     secGrpCouchbase = createCouchbaseSecurityGroups(t)
 
@@ -167,7 +178,10 @@ def gen_template(config):
         instance.KeyName = Ref(keyname_param)
         instance.Tags = Tags(Name=name, Type=server_type)
         instance.IamInstanceProfile = Ref(instanceProfile)
-        instance.UserData = userDataCouchbaseServer(config.build_repo_commit, config.sgautoscale_repo_commit)
+        instance.UserData = userDataCouchbaseServer(
+            config.build_repo_commit,
+            config.sgautoscale_repo_commit,
+        )
         instance.BlockDeviceMappings = [blockDeviceMapping(config, server_type)]
         t.add_resource(instance)
 
@@ -359,7 +373,7 @@ def userDataCouchbaseServer(build_repo_commit, sgautoscale_repo_commit):
         'cat *.py\n',
         'python sg_autoscale_launch.py --stack-name ', Ref("AWS::StackId"), '\n',  # on couchbase server machines, only installs telegraf.
         'export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n',
-        'python cbbootstrap.py --cluster-id ', Ref("AWS::StackId"), ' --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n',
+        'python cbbootstrap.py --cluster-id ', Ref("AWS::StackId"), ' --node-ip-addr-or-hostname ${public_dns_name} --admin-user ',  Ref("CouchbaseServerAdminUserParam"), ' --admin-pass ',  Ref("CouchbaseServerAdminPassParam"), '\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
 
