@@ -21,7 +21,6 @@ CBBOOTSTRAP_API_URL = "https://5e61vqxs5f.execute-api.us-east-1.amazonaws.com/Pr
 
 couchbase_server_bin_path = "/opt/couchbase/bin"
 couchbase_server_admin_port = "8091"
-couchbase_server_cluster_ram = int(13500)  # TODO: calculate this
 couchbase_cli_abs_path = os.path.join(
     couchbase_server_bin_path,
     "couchbase-cli",
@@ -124,7 +123,7 @@ class CouchbaseCluster:
             "--user={}".format(self.admin_user),
             "--password={}".format(self.admin_pass),
             "--cluster-port={}".format(couchbase_server_admin_port),
-            "--cluster-ramsize={}".format(couchbase_server_cluster_ram),
+            "--cluster-ramsize={}".format(self._get_effective_ram_mb()),
             "--services=data",
         ]
         
@@ -135,7 +134,7 @@ class CouchbaseCluster:
         self.Retry(self.LocalCouchbaseServerRunningOrRaise)
 
     def LocalCouchbaseServerRunningOrRaise(self):
-        urllib2.urlopen('http://{}:8091'.format(self.node_ip_addr_or_hostname))
+        urllib2.urlopen('http://{}:{}'.format(self.node_ip_addr_or_hostname, couchbase_server_admin_port))
         
     def WaitUntilNodeHealthy(self, node_ip):
         def f():
@@ -266,6 +265,45 @@ class CouchbaseCluster:
         
         exec_subprocess(subprocess_args)
 
+    def _get_total_ram_mb(self):
+        """
+        Call the Couchbase REST API to get the total memory available on the machine. RAM returned is in mb
+
+        TODO: duplicated from mobile-testkit couchbaseserver.py -- should be consolidated
+        """
+        url = "{}:{}".format(self.node_ip_addr_or_hostname, couchbase_server_admin_port)
+        json_response = urllib2.urlopen(url)
+        resp_json = json.load(json_response)
+
+        # Workaround for https://github.com/couchbaselabs/mobile-testkit/issues/709
+        # where some node report mem_total = 0. Loop over all the nodes and find highest val
+        mem_total_highest = 0
+        for node in resp_json["nodes"]:
+            mem_total = node["systemStats"]["mem_total"]
+            if mem_total > mem_total_highest:
+                mem_total_highest = mem_total
+
+        total_avail_ram_mb = int(mem_total_highest / (1024 * 1024))
+        print("total_avail_ram_mb: {}".format(total_avail_ram_mb))
+        return total_avail_ram_mb
+
+    def _get_effective_ram_mb(self):
+        """ Return the amount of effective RAM ((total RAM * muliplier) - n1ql ram allocation)
+        Given a total amount of ram
+
+        TODO: duplicated from mobile-testkit couchbaseserver.py -- should be consolidated
+
+        """
+
+        # Leave 20% of RAM available for the underlying OS
+        ram_multiplier = 0.80
+
+        total_ram_mb = self._get_total_ram_mb()
+        effective_avail_ram_mb = int(total_ram_mb * ram_multiplier)
+
+        print("effective_avail_ram_mb: {}".format(effective_avail_ram_mb))
+        return effective_avail_ram_mb
+
     def AddBucket(self, bucket_name, bucket_percent_ram):
 
         if not self.is_initial_node:
@@ -278,7 +316,7 @@ class CouchbaseCluster:
         if bucket_percent_ram < 0.0 or bucket_percent_ram > 1.0:
             raise Exception("invalid bucket_percent_ram: {}".format(bucket_percent_ram))
         
-        bucket_ramsize = couchbase_server_cluster_ram * bucket_percent_ram 
+        bucket_ramsize = self._get_effective_ram_mb() * bucket_percent_ram
 
         subprocess_args = [
             couchbase_cli_abs_path,
