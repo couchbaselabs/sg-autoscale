@@ -376,13 +376,6 @@ def main():
 
     args = parser.parse_args()
 
-    # make sure the cluster-id doesn't contain invalid chars
-    url_quoted_cluster_id = urllib2.quote(args.cluster_id, safe='')
-    if url_quoted_cluster_id != args.cluster_id:
-        raise Exception("The cluster-id {} appears to have characters unsafe for urls." +
-                        " The url quoted version is {}.  Consider base64 encoding it".format(
-                            args.cluster_id,
-                            url_quoted_cluster_id))
 
     print("{} called with cluster_id {}, node_ip_addr_or_hostname {}, admin user {}".format(
         sys.argv[0],
@@ -390,6 +383,15 @@ def main():
         args.node_ip_addr_or_hostname,
         args.admin_user,
     ))
+
+    # make sure the cluster-id doesn't contain invalid chars
+    url_quoted_cluster_id = urllib2.quote(args.cluster_id, safe='')
+    if url_quoted_cluster_id != args.cluster_id:
+        raise Exception("The cluster-id {} appears to have characters unsafe for urls. The url quoted version is {}  Consider base64 encoding it".format(
+                            args.cluster_id,
+                            url_quoted_cluster_id))
+
+
 
     cbCluster = CouchbaseCluster(
         cluster_id=args.cluster_id,
