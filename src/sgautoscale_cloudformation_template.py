@@ -332,7 +332,7 @@ def userDataSyncGatewayOrAccel(build_repo_commit, sgautoscale_repo_commit):
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/' + sgautoscale_repo_commit + '/src/sg_autoscale_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/' + sgautoscale_repo_commit + '/src/cbbootstrap.py\n',
         'cat *.py\n',
-        'python sg_autoscale_launch.py --stack-name ', Base64(Ref("AWS::StackId")), '\n',
+        'python sg_autoscale_launch.py --stack-name ', Ref("AWS::StackId"), '\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
 
@@ -357,9 +357,9 @@ def userDataCouchbaseServer(build_repo_commit, sgautoscale_repo_commit):
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/' + sgautoscale_repo_commit + '/src/sg_autoscale_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/' + sgautoscale_repo_commit + '/src/cbbootstrap.py\n',
         'cat *.py\n',
-        'python sg_autoscale_launch.py --stack-name ', Base64(Ref("AWS::StackId")), '\n',  # on couchbase server machines, only installs telegraf.
+        'python sg_autoscale_launch.py --stack-name ', Ref("AWS::StackId"), '\n',  # on couchbase server machines, only installs telegraf.
         'export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n',
-        'python cbbootstrap.py --cluster-id ', Base64(Ref("AWS::StackId")), ' --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n',
+        'python cbbootstrap.py --cluster-id ', Ref("AWS::StackId"), ' --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
 

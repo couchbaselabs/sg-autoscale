@@ -83,9 +83,20 @@ class CouchbaseCluster:
         of initial couchbase server node
         """
 
-        get_cluster_info_url = "{}/{}".format(CBBOOTSTRAP_API_URL, self.cluster_id)
-        response = urllib2.urlopen(get_cluster_info_url)
+        # POST request
+        params = {
+            'cluster_id': self.cluster_id,
+        }
+        url = "{}/get_status".format(CBBOOTSTRAP_API_URL)
+        req = urllib2.Request(url,
+                              headers={
+                                  "Content-Type": "application/json",
+                              },
+                              data=json.dumps(params),  # Since adding data, automatically makes it a POST request
+                              )
+        response = urllib2.urlopen(req)
         self.__cbbootstrap_load_properties_from_json_response(response)
+
 
     def CBBootstrapGetClusterInfoRetry(self):
         self.Retry(self.CBBootstrapGetClusterInfo)
@@ -383,15 +394,6 @@ def main():
         args.node_ip_addr_or_hostname,
         args.admin_user,
     ))
-
-    # make sure the cluster-id doesn't contain invalid chars
-    url_quoted_cluster_id = urllib2.quote(args.cluster_id, safe='')
-    if url_quoted_cluster_id != args.cluster_id:
-        raise Exception("The cluster-id {} appears to have characters unsafe for urls. The url quoted version is {}  Consider base64 encoding it".format(
-                            args.cluster_id,
-                            url_quoted_cluster_id))
-
-
 
     cbCluster = CouchbaseCluster(
         cluster_id=args.cluster_id,

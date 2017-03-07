@@ -180,9 +180,7 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "ethtool -K eth0 sg off\n"
@@ -317,9 +315,7 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "ethtool -K eth0 sg off\n"
@@ -380,17 +376,13 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py --cluster-id ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 " --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n",
                                 "ethtool -K eth0 sg off\n"
@@ -451,17 +443,13 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py --cluster-id ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 " --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n",
                                 "ethtool -K eth0 sg off\n"
@@ -522,17 +510,13 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py --cluster-id ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 " --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n",
                                 "ethtool -K eth0 sg off\n"
@@ -593,17 +577,13 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py --cluster-id ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 " --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n",
                                 "ethtool -K eth0 sg off\n"
@@ -664,17 +644,13 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py --cluster-id ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 " --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n",
                                 "ethtool -K eth0 sg off\n"
@@ -735,17 +711,13 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
                                 "python cbbootstrap.py --cluster-id ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 " --node-ip-addr-or-hostname ${public_dns_name} --admin-user Administrator --admin-pass password\n",
                                 "ethtool -K eth0 sg off\n"
@@ -803,9 +775,7 @@
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
-                                    "Fn::Base64": {
-                                        "Ref": "AWS::StackId"
-                                    }
+                                    "Ref": "AWS::StackId"
                                 },
                                 "\n",
                                 "ethtool -K eth0 sg off\n"
