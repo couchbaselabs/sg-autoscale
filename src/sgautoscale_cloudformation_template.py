@@ -181,6 +181,8 @@ def gen_template(config):
         instance.UserData = userDataCouchbaseServer(
             config.build_repo_commit,
             config.sgautoscale_repo_commit,
+            Ref(couchbase_server_admin_user_param),
+            Ref(couchbase_server_admin_pass_param),
         )
         instance.BlockDeviceMappings = [blockDeviceMapping(config, server_type)]
         t.add_resource(instance)
@@ -353,7 +355,7 @@ def userDataSyncGatewayOrAccel(build_repo_commit, sgautoscale_repo_commit):
 # The "user data" launch script that runs on startup on Couchbase Server instances
 # The output from this script is available on the ec2 instance in /var/log/cloud-init-output.log
 # ----------------------------------------------------------------------------------------------------------------------
-def userDataCouchbaseServer(build_repo_commit, sgautoscale_repo_commit):
+def userDataCouchbaseServer(build_repo_commit, sgautoscale_repo_commit, admin_user_reference, admin_passwword_reference):
 
     # TODO
     """
@@ -373,7 +375,7 @@ def userDataCouchbaseServer(build_repo_commit, sgautoscale_repo_commit):
         'cat *.py\n',
         'python sg_autoscale_launch.py --stack-name ', Ref("AWS::StackId"), '\n',  # on couchbase server machines, only installs telegraf.
         'export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n',
-        'python cbbootstrap.py --cluster-id ', Ref("AWS::StackId"), ' --node-ip-addr-or-hostname ${public_dns_name} --admin-user ',  Ref("CouchbaseServerAdminUserParam"), ' --admin-pass ',  Ref("CouchbaseServerAdminPassParam"), '\n',
+        'python cbbootstrap.py --cluster-id ', Ref("AWS::StackId"), ' --node-ip-addr-or-hostname ${public_dns_name} --admin-user ',  admin_user_reference, ' --admin-pass ',  admin_passwword_reference, '\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
     ]))
 
