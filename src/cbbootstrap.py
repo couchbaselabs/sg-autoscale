@@ -267,23 +267,12 @@ class CouchbaseCluster:
 
     def _get_total_ram_mb(self):
         """
-        Call the Couchbase REST API to get the total memory available on the machine. RAM returned is in mb
-
-        TODO: duplicated from mobile-testkit couchbaseserver.py -- should be consolidated
+        Get total ram -- taken from http://stackoverflow.com/questions/22102999/get-total-physical-memory-in-python
         """
-        url = "{}:{}".format(self.node_ip_addr_or_hostname, couchbase_server_admin_port)
-        json_response = urllib2.urlopen(url)
-        resp_json = json.load(json_response)
 
-        # Workaround for https://github.com/couchbaselabs/mobile-testkit/issues/709
-        # where some node report mem_total = 0. Loop over all the nodes and find highest val
-        mem_total_highest = 0
-        for node in resp_json["nodes"]:
-            mem_total = node["systemStats"]["mem_total"]
-            if mem_total > mem_total_highest:
-                mem_total_highest = mem_total
+        mem_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')  # e.g. 4015976448
+        total_avail_ram_mb = mem_bytes / (1024. ** 2)
 
-        total_avail_ram_mb = int(mem_total_highest / (1024 * 1024))
         print("total_avail_ram_mb: {}".format(total_avail_ram_mb))
         return total_avail_ram_mb
 
