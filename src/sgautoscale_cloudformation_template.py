@@ -19,7 +19,6 @@ def gen_template(config):
     num_load_generators = config.num_load_generators
     load_generator_instance_type = config.load_generator_instance_type
 
-
     t = Template()
     t.add_description(
         'An Ec2-classic stack with Sync Gateway + Accelerator + Couchbase Server with horizontally scalable AutoScaleGroup'
@@ -159,25 +158,17 @@ def gen_template(config):
     # Couchbase Server Instances
     # ------------------------------------------------------------------------------------------------------------------
     for i in xrange(num_couchbase_servers):
+        server_type = "couchbaseserver"
         name = "couchbaseserver{}".format(i)
         instance = ec2.Instance(name)
         instance.ImageId = config.couchbase_ami_id
         instance.InstanceType = couchbase_instance_type
         instance.SecurityGroups = [Ref(secGrpCouchbase)]
         instance.KeyName = Ref(keyname_param)
-        instance.Tags = Tags(Name=name, Type="couchbaseserver")
+        instance.Tags = Tags(Name=name, Type=server_type)
         instance.IamInstanceProfile = Ref(instanceProfile)
         instance.UserData = userDataCouchbaseServer()
-        instance.BlockDeviceMappings = [
-            ec2.BlockDeviceMapping(
-                DeviceName="/dev/sda1",
-                Ebs=ec2.EBSBlockDevice(
-                    DeleteOnTermination=True,
-                    VolumeSize=200,
-                    VolumeType="gp2"
-                )
-            )
-        ]
+        instance.BlockDeviceMappings = [blockDeviceMapping(config, server_type)]
         t.add_resource(instance)
 
 
@@ -244,16 +235,7 @@ def gen_template(config):
         InstanceType=sync_gateway_server_type,
         SecurityGroups=[Ref(secGrpCouchbase)],
         UserData=userDataSyncGatewayOrAccel(),
-        BlockDeviceMappings=[
-            ec2.BlockDeviceMapping(
-                DeviceName="/dev/sda1",
-                Ebs=ec2.EBSBlockDevice(
-                    DeleteOnTermination=True,
-                    VolumeSize=25,
-                    VolumeType="gp2"
-                )
-            )
-        ]
+        BlockDeviceMappings=[blockDeviceMapping(config, "syncgateway")]
     )
     t.add_resource(SGLaunchConfiguration)
 
@@ -281,16 +263,7 @@ def gen_template(config):
         InstanceType=sync_gateway_server_type,
         SecurityGroups=[Ref(secGrpCouchbase)],
         UserData=userDataSyncGatewayOrAccel(),
-        BlockDeviceMappings=[
-            ec2.BlockDeviceMapping(
-                DeviceName="/dev/sda1",
-                Ebs=ec2.EBSBlockDevice(
-                    DeleteOnTermination=True,
-                    VolumeSize=25,
-                    VolumeType="gp2"
-                )
-            )
-        ]
+        BlockDeviceMappings=[blockDeviceMapping(config, "sgaccel")]
     )
     t.add_resource(SGAccelLaunchConfiguration)
 
@@ -307,11 +280,10 @@ def gen_template(config):
     )
     t.add_resource(SGAccelAutoScalingGroup)
 
-
-
     # Load generator instances
     # ------------------------------------------------------------------------------------------------------------------
     for i in xrange(num_load_generators):
+        server_type = "loadgenerator"
         name = "loadgenerator{}".format(i)
         instance = ec2.Instance(name)
         instance.ImageId = config.load_generator_ami_id
@@ -320,17 +292,8 @@ def gen_template(config):
         instance.KeyName = Ref(keyname_param)
         instance.IamInstanceProfile = Ref(instanceProfile)
         instance.UserData = userDataSyncGatewayOrAccel()
-        instance.Tags = Tags(Name=name, Type="loadgenerator")
-        instance.BlockDeviceMappings = [
-            ec2.BlockDeviceMapping(
-                DeviceName="/dev/sda1",
-                Ebs=ec2.EBSBlockDevice(
-                    DeleteOnTermination=True,
-                    VolumeSize=25,
-                    VolumeType="gp2"
-                )
-            )
-        ]
+        instance.Tags = Tags(Name=name, Type=server_type)
+        instance.BlockDeviceMappings = [blockDeviceMapping(config, server_type)]
 
         t.add_resource(instance)
 
@@ -344,6 +307,18 @@ def gen_template(config):
     ])
 
     return t.to_json()
+
+
+def blockDeviceMapping(config, server_type):
+    return ec2.BlockDeviceMapping(
+        DeviceName=config.block_device_name,
+        Ebs=ec2.EBSBlockDevice(
+            DeleteOnTermination=True,
+            VolumeSize=config.block_device_volume_size_by_server_type[server_type],
+            VolumeType=config.block_device_volume_type
+        )
+    )
+
 
 # The "user data" launch script that runs on startup on SG and SG Accel EC2 instances.
 # The output from this script is available on the ec2 instance in /var/log/cloud-init-output.log
@@ -373,7 +348,9 @@ def userDataCouchbaseServer():
 
     return Base64(Join('', [
         '#!/bin/bash\n',
+        'service couchbase-server status\n',
         'sleep 60\n',  # workaround for https://issues.couchbase.com/browse/MB-23081
+        'service couchbase-server status\n',
         'wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
         'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n',
@@ -402,6 +379,9 @@ def main():
             'load_generator_ami_id',
             'load_balancer_dns_hostname',
             'load_balancer_dns_hosted_zone_name',
+            'block_device_name',
+            'block_device_volume_size_by_server_type',
+            'block_device_volume_type',
         ]),
     )
 
@@ -443,6 +423,9 @@ def main():
         load_generator_ami_id=load_generator_ami_ids_per_region[region],
         load_balancer_dns_hostname="sgautoscale",
         load_balancer_dns_hosted_zone_name="couchbasemobile.com.",
+        block_device_name="/dev/sda1",  # "/dev/sda1" for centos, /dev/xvda for amazon linux ami
+        block_device_volume_size_by_server_type={"couchbaseserver": 200, "syncgateway": 25, "sgaccel": 25, "loadgenerator": 25},
+        block_device_volume_type="gp2",
     )
 
     templ_json = gen_template(config)

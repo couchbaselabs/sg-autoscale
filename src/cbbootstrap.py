@@ -372,6 +372,8 @@ def main():
     # fakeJoin()
     # fakeCreateOrJoin()
 
+    print("{} called with cluster_id {}, node_ip_addr_or_hostname {}".format(sys.argv[0], sys.argv[1], sys.argv[2]))
+
     cbCluster = CouchbaseCluster(
         cluster_id=sys.argv[1],
         node_ip_addr_or_hostname=sys.argv[2],

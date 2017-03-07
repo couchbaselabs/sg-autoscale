@@ -7,6 +7,7 @@ import socket
 import argparse
 import cbbootstrap
 from string import Template
+import sys
 
 # If you are running Sync Gateway, customize your configuration here
 sync_gateway_config = """
@@ -160,6 +161,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--stack-name", help="The name of the cloudformation stack, so that cbbootstrap can discover couchbase server IP address", required=True)
     args = parser.parse_args()
+
+    print("{} called with stack name: {}".format(sys.argv[0], args.stack_name))
 
     server_type = sg_launch.discover_server_type()
 
