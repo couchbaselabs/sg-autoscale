@@ -400,6 +400,9 @@ def main():
     # fakeJoin()
     # fakeCreateOrJoin()
 
+    # TODO: parameterize the admin user, admin pass and use argparse
+    # TODO: then update cloudformation templates to pass this in via template params
+
     print("{} called with cluster_id {}, node_ip_addr_or_hostname {}".format(sys.argv[0], sys.argv[1], sys.argv[2]))
 
     cbCluster = CouchbaseCluster(

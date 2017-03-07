@@ -1,15 +1,5 @@
 {
     "Description": "An Ec2-classic stack with Sync Gateway + Accelerator + Couchbase Server with horizontally scalable AutoScaleGroup",
-    "Outputs": {
-        "SGAutoScaleLoadBalancerPublicDNS": {
-            "Value": {
-                "Fn::GetAtt": [
-                    "SGAutoScaleLoadBalancer",
-                    "DNSName"
-                ]
-            }
-        }
-    },
     "Parameters": {
         "KeyName": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access",
@@ -184,9 +174,9 @@
                             "",
                             [
                                 "#!/bin/bash\n",
-                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/0b5217c53d25d5974859014b4f241c51de9a79b1/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
@@ -321,9 +311,9 @@
                             "",
                             [
                                 "#!/bin/bash\n",
-                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/0b5217c53d25d5974859014b4f241c51de9a79b1/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
@@ -339,23 +329,6 @@
                 }
             },
             "Type": "AWS::AutoScaling::LaunchConfiguration"
-        },
-        "SgAutoScaleDNS": {
-            "Properties": {
-                "HostedZoneName": "couchbasemobile.com.",
-                "Name": "sgautoscale.couchbasemobile.com.",
-                "ResourceRecords": [
-                    {
-                        "Fn::GetAtt": [
-                            "SGAutoScaleLoadBalancer",
-                            "DNSName"
-                        ]
-                    }
-                ],
-                "TTL": "900",
-                "Type": "CNAME"
-            },
-            "Type": "AWS::Route53::RecordSet"
         },
         "couchbaseserver0": {
             "Properties": {
@@ -399,11 +372,9 @@
                             [
                                 "#!/bin/bash\n",
                                 "service couchbase-server status\n",
-                                "sleep 60\n",
-                                "service couchbase-server status\n",
-                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/0b5217c53d25d5974859014b4f241c51de9a79b1/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
@@ -470,11 +441,9 @@
                             [
                                 "#!/bin/bash\n",
                                 "service couchbase-server status\n",
-                                "sleep 60\n",
-                                "service couchbase-server status\n",
-                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/0b5217c53d25d5974859014b4f241c51de9a79b1/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
@@ -541,11 +510,9 @@
                             [
                                 "#!/bin/bash\n",
                                 "service couchbase-server status\n",
-                                "sleep 60\n",
-                                "service couchbase-server status\n",
-                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/0b5217c53d25d5974859014b4f241c51de9a79b1/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
@@ -612,11 +579,9 @@
                             [
                                 "#!/bin/bash\n",
                                 "service couchbase-server status\n",
-                                "sleep 60\n",
-                                "service couchbase-server status\n",
-                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/0b5217c53d25d5974859014b4f241c51de9a79b1/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
@@ -683,11 +648,9 @@
                             [
                                 "#!/bin/bash\n",
                                 "service couchbase-server status\n",
-                                "sleep 60\n",
-                                "service couchbase-server status\n",
-                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/0b5217c53d25d5974859014b4f241c51de9a79b1/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
@@ -754,11 +717,9 @@
                             [
                                 "#!/bin/bash\n",
                                 "service couchbase-server status\n",
-                                "sleep 60\n",
-                                "service couchbase-server status\n",
-                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/0b5217c53d25d5974859014b4f241c51de9a79b1/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {
@@ -824,9 +785,9 @@
                             "",
                             [
                                 "#!/bin/bash\n",
-                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
-                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/0b5217c53d25d5974859014b4f241c51de9a79b1/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/abba14fe90e281b5a801e6d2397cb5f152a2097f/src/cbbootstrap.py\n",
                                 "cat *.py\n",
                                 "python sg_autoscale_launch.py --stack-name ",
                                 {

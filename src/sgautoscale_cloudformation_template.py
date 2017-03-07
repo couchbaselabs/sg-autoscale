@@ -167,7 +167,7 @@ def gen_template(config):
         instance.KeyName = Ref(keyname_param)
         instance.Tags = Tags(Name=name, Type=server_type)
         instance.IamInstanceProfile = Ref(instanceProfile)
-        instance.UserData = userDataCouchbaseServer()
+        instance.UserData = userDataCouchbaseServer(config.build_repo_commit, config.sgautoscale_repo_commit)
         instance.BlockDeviceMappings = [blockDeviceMapping(config, server_type)]
         t.add_resource(instance)
 
@@ -212,18 +212,19 @@ def gen_template(config):
     )
     t.add_resource(SGAutoScaleLoadBalancer)
 
-    t.add_resource(
-        RecordSetType(
-            title="SgAutoScaleDNS",
-            ResourceRecords=[
-                GetAtt(SGAutoScaleLoadBalancer, "DNSName")
-            ],
-            TTL="900",
-            Name="{}.{}".format(config.load_balancer_dns_hostname, config.load_balancer_dns_hosted_zone_name),
-            HostedZoneName=config.load_balancer_dns_hosted_zone_name,
-            Type="CNAME",
+    if config.load_balancer_dns_enabled:
+        t.add_resource(
+            RecordSetType(
+                title="SgAutoScaleDNS",
+                ResourceRecords=[
+                    GetAtt(SGAutoScaleLoadBalancer, "DNSName")
+                ],
+                TTL="900",
+                Name="{}.{}".format(config.load_balancer_dns_hostname, config.load_balancer_dns_hosted_zone_name),
+                HostedZoneName=config.load_balancer_dns_hosted_zone_name,
+                Type="CNAME",
+            )
         )
-    )
 
     # SG AutoScaleGroup
     # ------------------------------------------------------------------------------------------------------------------
@@ -234,7 +235,7 @@ def gen_template(config):
         IamInstanceProfile=Ref(instanceProfile),
         InstanceType=sync_gateway_server_type,
         SecurityGroups=[Ref(secGrpCouchbase)],
-        UserData=userDataSyncGatewayOrAccel(),
+        UserData=userDataSyncGatewayOrAccel(config.build_repo_commit, config.sgautoscale_repo_commit),
         BlockDeviceMappings=[blockDeviceMapping(config, "syncgateway")]
     )
     t.add_resource(SGLaunchConfiguration)
@@ -262,7 +263,7 @@ def gen_template(config):
         IamInstanceProfile=Ref(instanceProfile),
         InstanceType=sync_gateway_server_type,
         SecurityGroups=[Ref(secGrpCouchbase)],
-        UserData=userDataSyncGatewayOrAccel(),
+        UserData=userDataSyncGatewayOrAccel(config.build_repo_commit, config.sgautoscale_repo_commit),
         BlockDeviceMappings=[blockDeviceMapping(config, "sgaccel")]
     )
     t.add_resource(SGAccelLaunchConfiguration)
@@ -291,7 +292,7 @@ def gen_template(config):
         instance.SecurityGroups = [Ref(secGrpCouchbase)]
         instance.KeyName = Ref(keyname_param)
         instance.IamInstanceProfile = Ref(instanceProfile)
-        instance.UserData = userDataSyncGatewayOrAccel()
+        instance.UserData = userDataSyncGatewayOrAccel(config.build_repo_commit, config.sgautoscale_repo_commit)
         instance.Tags = Tags(Name=name, Type=server_type)
         instance.BlockDeviceMappings = [blockDeviceMapping(config, server_type)]
 
@@ -299,12 +300,13 @@ def gen_template(config):
 
     # Outputs
     # ------------------------------------------------------------------------------------------------------------------
-    t.add_output([
-        Output(
-            "SGAutoScaleLoadBalancerPublicDNS",
-            Value=GetAtt(SGAutoScaleLoadBalancer, "DNSName")
-        ),
-    ])
+    if config.load_balancer_dns_enabled:
+        t.add_output([
+            Output(
+                "SGAutoScaleLoadBalancerPublicDNS",
+                Value=GetAtt(SGAutoScaleLoadBalancer, "DNSName")
+            ),
+        ])
 
     return t.to_json()
 
@@ -323,12 +325,12 @@ def blockDeviceMapping(config, server_type):
 # The "user data" launch script that runs on startup on SG and SG Accel EC2 instances.
 # The output from this script is available on the ec2 instance in /var/log/cloud-init-output.log
 # ----------------------------------------------------------------------------------------------------------------------
-def userDataSyncGatewayOrAccel():
+def userDataSyncGatewayOrAccel(build_repo_commit, sgautoscale_repo_commit):
     return Base64(Join('', [
         '#!/bin/bash\n',
-        'wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n',
-        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
-        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n',
+        'wget https://raw.githubusercontent.com/tleyden/build/' + build_repo_commit + '/scripts/jenkins/mobile/ami/sg_launch.py\n',
+        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/' + sgautoscale_repo_commit + '/src/sg_autoscale_launch.py\n',
+        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/' + sgautoscale_repo_commit + '/src/cbbootstrap.py\n',
         'cat *.py\n',
         'python sg_autoscale_launch.py --stack-name ', Base64(Ref("AWS::StackId")), '\n',
         'ethtool -K eth0 sg off\n'  # Disable scatter / gather for eth0 (see http://bit.ly/1R25bbE)
@@ -337,7 +339,7 @@ def userDataSyncGatewayOrAccel():
 # The "user data" launch script that runs on startup on Couchbase Server instances
 # The output from this script is available on the ec2 instance in /var/log/cloud-init-output.log
 # ----------------------------------------------------------------------------------------------------------------------
-def userDataCouchbaseServer():
+def userDataCouchbaseServer(build_repo_commit, sgautoscale_repo_commit):
 
     # TODO
     """
@@ -351,9 +353,9 @@ def userDataCouchbaseServer():
         'service couchbase-server status\n',
         'sleep 60\n',  # workaround for https://issues.couchbase.com/browse/MB-23081
         'service couchbase-server status\n',
-        'wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n',
-        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n',
-        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n',
+        'wget https://raw.githubusercontent.com/tleyden/build/' + build_repo_commit + '/scripts/jenkins/mobile/ami/sg_launch.py\n',
+        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/' + sgautoscale_repo_commit + '/src/sg_autoscale_launch.py\n',
+        'wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/' + sgautoscale_repo_commit + '/src/cbbootstrap.py\n',
         'cat *.py\n',
         'python sg_autoscale_launch.py --stack-name ', Base64(Ref("AWS::StackId")), '\n',  # on couchbase server machines, only installs telegraf.
         'export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n',
@@ -377,11 +379,14 @@ def main():
             'sync_gateway_ami_id',
             'sg_accel_ami_id',
             'load_generator_ami_id',
+            'load_balancer_dns_enabled',
             'load_balancer_dns_hostname',
             'load_balancer_dns_hosted_zone_name',
             'block_device_name',
             'block_device_volume_size_by_server_type',
             'block_device_volume_type',
+            'build_repo_commit',
+            'sgautoscale_repo_commit',
         ]),
     )
 
@@ -421,11 +426,15 @@ def main():
         num_load_generators=1,
         load_generator_instance_type="c3.2xlarge",
         load_generator_ami_id=load_generator_ami_ids_per_region[region],
+        load_balancer_dns_enabled=False,
         load_balancer_dns_hostname="sgautoscale",
         load_balancer_dns_hosted_zone_name="couchbasemobile.com.",
         block_device_name="/dev/sda1",  # "/dev/sda1" for centos, /dev/xvda for amazon linux ami
         block_device_volume_size_by_server_type={"couchbaseserver": 200, "syncgateway": 25, "sgaccel": 25, "loadgenerator": 25},
         block_device_volume_type="gp2",
+        build_repo_commit="0b5217c53d25d5974859014b4f241c51de9a79b1",
+        sgautoscale_repo_commit="abba14fe90e281b5a801e6d2397cb5f152a2097f",
+
     )
 
     templ_json = gen_template(config)
