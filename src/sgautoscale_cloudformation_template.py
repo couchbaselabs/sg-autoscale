@@ -29,16 +29,20 @@ def gen_template(config):
     # Parameters
     #
     keyname_param = t.add_parameter(Parameter(
-        'KeyName', Type='String',
-        Description='Name of an existing EC2 KeyPair to enable SSH access'
+        'KeyName',
+        Type='String',
+        Description='Name of an existing EC2 KeyPair to enable SSH access',
     ))
     couchbase_server_admin_user_param = t.add_parameter(Parameter(
-        'CouchbaseServerAdminUserParam', Type='String',
-        Description='The Couchbase Server Admin username'
+        'CouchbaseServerAdminUserParam',
+        Type='String',
+        Description='The Couchbase Server Admin username',
+        Default='Administrator',
     ))
     couchbase_server_admin_pass_param = t.add_parameter(Parameter(
-        'CouchbaseServerAdminPassParam', Type='String',
-        Description='The Couchbase Server Admin password'
+        'CouchbaseServerAdminPassParam',
+        Type='String',
+        Description='The Couchbase Server Admin password',
     ))
 
     # Security Group + Launch Keypair
@@ -442,7 +446,7 @@ def main():
         num_load_generators=1,
         load_generator_instance_type="c3.2xlarge",
         load_generator_ami_id=load_generator_ami_ids_per_region[region],
-        load_balancer_dns_enabled=False,
+        load_balancer_dns_enabled=True,
         load_balancer_dns_hostname="sgautoscale",
         load_balancer_dns_hosted_zone_name="couchbasemobile.com.",
         block_device_name="/dev/sda1",  # "/dev/sda1" for centos, /dev/xvda for amazon linux ami
