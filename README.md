@@ -1,0 +1,1 @@
+This repo has moved to [sync-gateway-ami](https://github.com/couchbase/sync-gateway-ami)
